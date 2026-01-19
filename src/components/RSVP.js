@@ -1,16 +1,9 @@
-// Editorial Theme - RSVP
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { css, keyframes } from 'styled-components';
-
-const fadeInUp = keyframes`
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
+import styled from 'styled-components';
 
 const Section = styled.section`
   padding: 8rem 2rem;
   background: #FAFAFA;
-  position: relative;
 `;
 
 const Container = styled.div`
@@ -21,9 +14,6 @@ const Container = styled.div`
 const Header = styled.div`
   text-align: center;
   margin-bottom: 3rem;
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: translateY(${p => p.visible ? 0 : '30px'});
-  transition: all 0.8s ease;
 `;
 
 const Eyebrow = styled.div`
@@ -34,15 +24,21 @@ const Eyebrow = styled.div`
   text-transform: uppercase;
   color: #666;
   margin-bottom: 1.5rem;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s ease;
 `;
 
 const Title = styled.h2`
   font-family: 'Instrument Serif', serif;
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: 400;
   color: #000;
   margin-bottom: 1rem;
-  
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s ease;
+  transition-delay: 0.1s;
   span { font-style: italic; }
 `;
 
@@ -50,33 +46,34 @@ const Subtitle = styled.p`
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   color: #666;
-  line-height: 1.6;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s ease;
+  transition-delay: 0.2s;
 `;
 
 const Form = styled.form`
   background: #FFF;
   padding: 3rem;
   border: 1px solid #E0E0E0;
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: translateY(${p => p.visible ? 0 : '30px'});
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '30px'});
   transition: all 0.8s ease;
-  transition-delay: 0.2s;
+  transition-delay: 0.3s;
   
-  @media (max-width: 600px) {
-    padding: 2rem 1.5rem;
-  }
+  @media (max-width: 600px) { padding: 2rem 1.5rem; }
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 `;
 
 const Label = styled.label`
   display: block;
   font-family: 'Inter', sans-serif;
   font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-weight: 500;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   color: #000;
   margin-bottom: 0.75rem;
@@ -86,7 +83,7 @@ const Input = styled.input`
   width: 100%;
   padding: 1rem;
   font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: #000;
   background: #FAFAFA;
   border: 1px solid #E0E0E0;
@@ -97,41 +94,30 @@ const Input = styled.input`
     border-color: #000;
     background: #FFF;
   }
-  
-  &::placeholder {
-    color: #999;
-  }
 `;
 
-const Select = styled.select`
+const TextArea = styled.textarea`
   width: 100%;
   padding: 1rem;
   font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: #000;
   background: #FAFAFA;
   border: 1px solid #E0E0E0;
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
+  min-height: 100px;
+  resize: vertical;
+  transition: all 0.3s ease;
   
   &:focus {
     outline: none;
     border-color: #000;
-    background-color: #FFF;
+    background: #FFF;
   }
 `;
 
 const RadioGroup = styled.div`
   display: flex;
   gap: 2rem;
-  
-  @media (max-width: 400px) {
-    flex-direction: column;
-    gap: 1rem;
-  }
 `;
 
 const RadioLabel = styled.label`
@@ -140,79 +126,64 @@ const RadioLabel = styled.label`
   gap: 0.75rem;
   cursor: pointer;
   font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #333;
+`;
+
+const RadioInput = styled.input`
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #000;
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
   
-  input {
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #000;
+  &:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: #000;
     border-radius: 50%;
-    cursor: pointer;
-    position: relative;
-    
-    &:checked::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 10px;
-      height: 10px;
-      background: #000;
-      border-radius: 50%;
-    }
   }
 `;
 
-const Textarea = styled.textarea`
+const Select = styled.select`
   width: 100%;
   padding: 1rem;
   font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: #000;
   background: #FAFAFA;
   border: 1px solid #E0E0E0;
-  min-height: 120px;
-  resize: vertical;
+  cursor: pointer;
   
   &:focus {
     outline: none;
     border-color: #000;
-    background: #FFF;
-  }
-  
-  &::placeholder {
-    color: #999;
   }
 `;
 
-const SubmitBtn = styled.button`
+const SubmitButton = styled.button`
   width: 100%;
-  padding: 1.2rem 2rem;
+  padding: 1.25rem 2rem;
   font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 500;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: #FFF;
   background: #000;
   border: none;
   cursor: pointer;
-  margin-top: 1rem;
   transition: all 0.3s ease;
   
-  &:hover {
-    background: #333;
-    transform: translateY(-2px);
-  }
-  
-  &:disabled {
-    background: #CCC;
-    cursor: not-allowed;
-    transform: none;
-  }
+  &:hover { background: #333; }
+  &:disabled { background: #CCC; cursor: not-allowed; }
 `;
 
 const SuccessMessage = styled.div`
@@ -220,49 +191,41 @@ const SuccessMessage = styled.div`
   padding: 3rem;
   background: #FFF;
   border: 1px solid #E0E0E0;
-  
-  h3 {
-    font-family: 'Instrument Serif', serif;
-    font-size: 1.8rem;
-    color: #000;
-    margin-bottom: 1rem;
-  }
-  
-  p {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.95rem;
-    color: #666;
-    line-height: 1.6;
-  }
 `;
 
-const Deadline = styled.p`
-  text-align: center;
-  margin-top: 2rem;
+const SuccessIcon = styled.div`
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+`;
+
+const SuccessTitle = styled.h3`
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: #000;
+  margin-bottom: 1rem;
+`;
+
+const SuccessText = styled.p`
   font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
-  color: #999;
-  
-  strong {
-    color: #000;
-    font-weight: 600;
-  }
+  font-size: 0.95rem;
+  color: #666;
+  margin: 0;
 `;
 
 function RSVP({
   title = 'Seid ihr',
   titleAccent = 'dabei?',
   subtitle = 'Bitte lasst uns bis zum 15. Juni wissen, ob ihr kommen könnt.',
-  deadline = '15. Juni 2025',
   menuOptions = ['Fleisch', 'Fisch', 'Vegetarisch', 'Vegan'],
-  onSubmit = (data) => console.log('RSVP submitted:', data),
+  onSubmit,
 }) {
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [attending, setAttending] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    attendance: '',
     guests: '1',
     menu: '',
     allergies: '',
@@ -273,20 +236,20 @@ function RSVP({
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.2 }
+      { threshold: 0.1 }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    const data = { ...formData, attending };
+    if (onSubmit) await onSubmit(data);
     setSubmitted(true);
   };
 
@@ -295,12 +258,13 @@ function RSVP({
       <Section ref={sectionRef} id="rsvp">
         <Container>
           <SuccessMessage>
-            <h3>Vielen Dank! 💕</h3>
-            <p>
-              {formData.attendance === 'yes' 
-                ? 'Wir freuen uns riesig, dass ihr dabei seid! Ihr werdet bald weitere Informationen erhalten.'
-                : 'Schade, dass ihr nicht kommen könnt. Wir werden euch trotzdem in Gedanken bei uns haben.'}
-            </p>
+            <SuccessIcon>{attending === 'yes' ? '🎉' : '💝'}</SuccessIcon>
+            <SuccessTitle>{attending === 'yes' ? 'Wunderbar!' : 'Vielen Dank!'}</SuccessTitle>
+            <SuccessText>
+              {attending === 'yes' 
+                ? 'Wir freuen uns sehr, dass ihr dabei seid!' 
+                : 'Schade, dass ihr nicht kommen könnt. Wir denken an euch!'}
+            </SuccessText>
           </SuccessMessage>
         </Container>
       </Section>
@@ -310,117 +274,70 @@ function RSVP({
   return (
     <Section ref={sectionRef} id="rsvp">
       <Container>
-        <Header visible={visible}>
-          <Eyebrow>RSVP</Eyebrow>
-          <Title>{title} <span>{titleAccent}</span></Title>
-          <Subtitle>{subtitle}</Subtitle>
+        <Header>
+          <Eyebrow $visible={visible}>RSVP</Eyebrow>
+          <Title $visible={visible}>{title} <span>{titleAccent}</span></Title>
+          <Subtitle $visible={visible}>{subtitle}</Subtitle>
         </Header>
         
-        <Form visible={visible} onSubmit={handleSubmit}>
+        <Form $visible={visible} onSubmit={handleSubmit}>
           <FormGroup>
-            <Label>Euer Name</Label>
-            <Input 
-              type="text" 
-              name="name" 
-              placeholder="Vor- und Nachname"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
+            <Label>Name *</Label>
+            <Input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Vor- und Nachname" required />
           </FormGroup>
           
           <FormGroup>
-            <Label>E-Mail</Label>
-            <Input 
-              type="email" 
-              name="email" 
-              placeholder="eure@email.de"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
+            <Label>E-Mail *</Label>
+            <Input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="email@beispiel.de" required />
           </FormGroup>
           
           <FormGroup>
-            <Label>Werdet ihr dabei sein?</Label>
+            <Label>Kommst du? *</Label>
             <RadioGroup>
               <RadioLabel>
-                <input 
-                  type="radio" 
-                  name="attendance" 
-                  value="yes"
-                  checked={formData.attendance === 'yes'}
-                  onChange={handleChange}
-                  required
-                />
-                Ja, wir kommen!
+                <RadioInput type="radio" name="attending" value="yes" checked={attending === 'yes'} onChange={() => setAttending('yes')} required />
+                Ja, ich komme
               </RadioLabel>
               <RadioLabel>
-                <input 
-                  type="radio" 
-                  name="attendance" 
-                  value="no"
-                  checked={formData.attendance === 'no'}
-                  onChange={handleChange}
-                />
+                <RadioInput type="radio" name="attending" value="no" checked={attending === 'no'} onChange={() => setAttending('no')} />
                 Leider nicht
               </RadioLabel>
             </RadioGroup>
           </FormGroup>
           
-          {formData.attendance === 'yes' && (
+          {attending === 'yes' && (
             <>
               <FormGroup>
                 <Label>Anzahl Gäste</Label>
                 <Select name="guests" value={formData.guests} onChange={handleChange}>
-                  <option value="1">1 Person</option>
-                  <option value="2">2 Personen</option>
-                  <option value="3">3 Personen</option>
-                  <option value="4">4 Personen</option>
-                </Select>
-              </FormGroup>
-              
-              <FormGroup>
-                <Label>Menüauswahl</Label>
-                <Select name="menu" value={formData.menu} onChange={handleChange} required>
-                  <option value="">Bitte auswählen</option>
-                  {menuOptions.map((option, i) => (
-                    <option key={i} value={option.toLowerCase()}>{option}</option>
+                  {[1, 2, 3, 4, 5].map(n => (
+                    <option key={n} value={n}>{n} {n === 1 ? 'Person' : 'Personen'}</option>
                   ))}
                 </Select>
               </FormGroup>
               
               <FormGroup>
+                <Label>Menüwahl</Label>
+                <Select name="menu" value={formData.menu} onChange={handleChange}>
+                  <option value="">Bitte auswählen</option>
+                  {menuOptions.map((opt, i) => <option key={i} value={opt}>{opt}</option>)}
+                </Select>
+              </FormGroup>
+              
+              <FormGroup>
                 <Label>Allergien / Unverträglichkeiten</Label>
-                <Input 
-                  type="text" 
-                  name="allergies" 
-                  placeholder="Optional"
-                  value={formData.allergies}
-                  onChange={handleChange}
-                />
+                <Input type="text" name="allergies" value={formData.allergies} onChange={handleChange} placeholder="z.B. Nüsse, Laktose..." />
               </FormGroup>
             </>
           )}
           
           <FormGroup>
-            <Label>Nachricht an uns (optional)</Label>
-            <Textarea 
-              name="message"
-              placeholder="Möchtet ihr uns noch etwas mitteilen?"
-              value={formData.message}
-              onChange={handleChange}
-            />
+            <Label>Nachricht (optional)</Label>
+            <TextArea name="message" value={formData.message} onChange={handleChange} placeholder="Möchtest du uns noch etwas mitteilen?" />
           </FormGroup>
           
-          <SubmitBtn type="submit">
-            Antwort senden
-          </SubmitBtn>
+          <SubmitButton type="submit" disabled={attending === null}>Absenden</SubmitButton>
         </Form>
-        
-        <Deadline>
-          Bitte antwortet bis <strong>{deadline}</strong>
-        </Deadline>
       </Container>
     </Section>
   );

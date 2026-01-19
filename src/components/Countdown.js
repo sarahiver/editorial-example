@@ -1,11 +1,5 @@
-// Editorial Theme - Countdown
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
-
-const fadeInUp = keyframes`
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
 
 const pulse = keyframes`
   0%, 100% { transform: scale(1); }
@@ -33,8 +27,8 @@ const Eyebrow = styled.div`
   text-transform: uppercase;
   color: #666;
   margin-bottom: 1.5rem;
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: translateY(${p => p.visible ? 0 : '20px'});
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
   transition: all 0.8s ease;
 `;
 
@@ -44,14 +38,11 @@ const Title = styled.h2`
   font-weight: 400;
   color: #000;
   margin-bottom: 3rem;
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: translateY(${p => p.visible ? 0 : '20px'});
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
   transition: all 0.8s ease;
   transition-delay: 0.1s;
-  
-  span {
-    font-style: italic;
-  }
+  span { font-style: italic; }
 `;
 
 const CountdownGrid = styled.div`
@@ -68,10 +59,10 @@ const CountdownGrid = styled.div`
 `;
 
 const CountdownItem = styled.div`
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: translateY(${p => p.visible ? 0 : '30px'});
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '30px'});
   transition: all 0.8s ease;
-  transition-delay: ${p => 0.2 + p.index * 0.1}s;
+  transition-delay: ${p => 0.2 + p.$index * 0.1}s;
 `;
 
 const Number = styled.div`
@@ -82,7 +73,7 @@ const Number = styled.div`
   line-height: 1;
   margin-bottom: 0.5rem;
   animation: ${pulse} 2s ease-in-out infinite;
-  animation-delay: ${p => p.index * 0.3}s;
+  animation-delay: ${p => p.$index * 0.3}s;
 `;
 
 const Label = styled.div`
@@ -94,13 +85,13 @@ const Label = styled.div`
   color: #666;
 `;
 
-const Divider = styled.div`
+const DividerLine = styled.div`
   width: 60px;
   height: 1px;
   background: #000;
   margin: 3rem auto;
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: scaleX(${p => p.visible ? 1 : 0});
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: scaleX(${p => p.$visible ? 1 : 0});
   transition: all 0.8s ease;
   transition-delay: 0.6s;
 `;
@@ -113,8 +104,8 @@ const Message = styled.p`
   max-width: 500px;
   margin: 0 auto;
   line-height: 1.6;
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: translateY(${p => p.visible ? 0 : '20px'});
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
   transition: all 0.8s ease;
   transition-delay: 0.7s;
 `;
@@ -127,12 +118,11 @@ function Countdown({
 }) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [visible, setVisible] = useState(false);
-  const sectionRef = React.useRef(null);
+  const sectionRef = useRef(null);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
       const difference = new Date(weddingDate) - new Date();
-      
       if (difference > 0) {
         setTimeLeft({
           days: Math.floor(difference / (1000 * 60 * 60 * 24)),
@@ -142,7 +132,6 @@ function Countdown({
         });
       }
     };
-
     calculateTimeLeft();
     const timer = setInterval(calculateTimeLeft, 1000);
     return () => clearInterval(timer);
@@ -165,25 +154,22 @@ function Countdown({
   ];
 
   return (
-    <Section ref={sectionRef}>
+    <Section ref={sectionRef} id="countdown">
       <Container>
-        <Eyebrow visible={visible}>Countdown</Eyebrow>
-        <Title visible={visible}>
-          {title} <span>{titleAccent}</span>
-        </Title>
+        <Eyebrow $visible={visible}>Countdown</Eyebrow>
+        <Title $visible={visible}>{title} <span>{titleAccent}</span></Title>
         
         <CountdownGrid>
           {items.map((item, i) => (
-            <CountdownItem key={i} index={i} visible={visible}>
-              <Number index={i}>{String(item.value).padStart(2, '0')}</Number>
+            <CountdownItem key={i} $index={i} $visible={visible}>
+              <Number $index={i}>{String(item.value).padStart(2, '0')}</Number>
               <Label>{item.label}</Label>
             </CountdownItem>
           ))}
         </CountdownGrid>
         
-        <Divider visible={visible} />
-        
-        <Message visible={visible}>{message}</Message>
+        <DividerLine $visible={visible} />
+        <Message $visible={visible}>{message}</Message>
       </Container>
     </Section>
   );

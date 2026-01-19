@@ -1,34 +1,19 @@
-// Editorial Theme - Gallery
-import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes } from 'styled-components';
-
-const fadeInUp = keyframes`
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const fadeIn = keyframes`
-  from { opacity: 0; }
-  to { opacity: 1; }
-`;
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import styled from 'styled-components';
 
 const Section = styled.section`
   padding: 8rem 2rem;
-  background: #FFF;
-  position: relative;
+  background: #FFFFFF;
 `;
 
 const Container = styled.div`
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 `;
 
 const Header = styled.div`
   text-align: center;
   margin-bottom: 4rem;
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: translateY(${p => p.visible ? 0 : '30px'});
-  transition: all 0.8s ease;
 `;
 
 const Eyebrow = styled.div`
@@ -39,62 +24,42 @@ const Eyebrow = styled.div`
   text-transform: uppercase;
   color: #666;
   margin-bottom: 1.5rem;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s ease;
 `;
 
 const Title = styled.h2`
   font-family: 'Instrument Serif', serif;
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: 400;
   color: #000;
-  
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s ease;
+  transition-delay: 0.1s;
   span { font-style: italic; }
 `;
 
-const MasonryGrid = styled.div`
+const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  gap: 1rem;
   
-  @media (max-width: 900px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  @media (max-width: 600px) {
-    grid-template-columns: 1fr;
-  }
+  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 500px) { grid-template-columns: 1fr; }
 `;
 
-const GalleryItem = styled.div`
+const ImageWrapper = styled.div`
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  background: #F5F5F5;
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: translateY(${p => p.visible ? 0 : '30px'});
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '30px'});
   transition: all 0.8s ease;
-  transition-delay: ${p => 0.1 + p.index * 0.1}s;
+  transition-delay: ${p => p.$index * 0.1}s;
   
   &:nth-child(3n+1) { grid-row: span 2; }
-  
-  @media (max-width: 900px) {
-    &:nth-child(3n+1) { grid-row: span 1; }
-    &:nth-child(4n+1) { grid-row: span 2; }
-  }
-  
-  @media (max-width: 600px) {
-    &:nth-child(n) { grid-row: span 1; }
-  }
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.6s ease;
-  }
-  
-  &:hover img {
-    transform: scale(1.05);
-  }
   
   &::after {
     content: '';
@@ -104,127 +69,95 @@ const GalleryItem = styled.div`
     transition: background 0.3s ease;
   }
   
-  &:hover::after {
-    background: rgba(0,0,0,0.1);
-  }
+  &:hover::after { background: rgba(0,0,0,0.2); }
 `;
 
-const PlaceholderImage = styled.div`
+const Image = styled.div`
   width: 100%;
-  height: 100%;
-  min-height: 300px;
-  background: linear-gradient(135deg, #F5F5F5 0%, #E8E8E8 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding-top: ${p => p.$tall ? '150%' : '100%'};
+  background: ${p => p.$src ? `url(${p.$src}) center/cover` : '#F0F0F0'};
+  transition: transform 0.6s ease;
   
-  span {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.8rem;
-    color: #999;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
+  ${ImageWrapper}:hover & { transform: scale(1.05); }
 `;
 
-// Lightbox
 const Lightbox = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 2000;
   background: rgba(0,0,0,0.95);
+  z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
-  opacity: ${p => p.isOpen ? 1 : 0};
-  visibility: ${p => p.isOpen ? 'visible' : 'hidden'};
+  opacity: ${p => p.$open ? 1 : 0};
+  visibility: ${p => p.$open ? 'visible' : 'hidden'};
   transition: all 0.3s ease;
 `;
 
-const LightboxImage = styled.div`
+const LightboxImage = styled.img`
   max-width: 90vw;
-  max-height: 85vh;
-  position: relative;
-  
-  img {
-    max-width: 100%;
-    max-height: 85vh;
-    object-fit: contain;
-  }
+  max-height: 90vh;
+  object-fit: contain;
 `;
 
 const LightboxClose = styled.button`
   position: absolute;
   top: 2rem;
   right: 2rem;
-  width: 50px;
-  height: 50px;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.3);
+  width: 48px;
+  height: 48px;
+  background: none;
+  border: none;
   color: #FFF;
-  font-size: 1.5rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: #FFF;
-    color: #000;
-  }
+  font-size: 2rem;
+  &:hover { color: #999; }
 `;
 
 const LightboxNav = styled.button`
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 50px;
-  height: 50px;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.3);
+  ${p => p.$direction === 'prev' ? 'left: 2rem;' : 'right: 2rem;'}
+  width: 48px;
+  height: 48px;
+  background: none;
+  border: none;
   color: #FFF;
-  font-size: 1.2rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  
-  ${p => p.direction === 'prev' ? 'left: 2rem;' : 'right: 2rem;'}
-  
-  &:hover {
-    background: #FFF;
-    color: #000;
-  }
-  
-  @media (max-width: 768px) {
-    ${p => p.direction === 'prev' ? 'left: 0.5rem;' : 'right: 0.5rem;'}
-  }
+  font-size: 2rem;
+  &:hover { color: #999; }
 `;
 
-const LightboxCounter = styled.div`
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
+const Placeholder = styled.div`
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #FAFAFA;
+  border: 1px dashed #E0E0E0;
+`;
+
+const PlaceholderText = styled.p`
   font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
-  color: rgba(255,255,255,0.6);
-  letter-spacing: 0.1em;
+  font-size: 0.9rem;
+  color: #999;
 `;
 
-function Gallery({
-  title = 'Unsere',
-  titleAccent = 'Momente',
-  images = [
-    { src: null, alt: 'Foto 1' },
-    { src: null, alt: 'Foto 2' },
-    { src: null, alt: 'Foto 3' },
-    { src: null, alt: 'Foto 4' },
-    { src: null, alt: 'Foto 5' },
-    { src: null, alt: 'Foto 6' },
-  ],
-}) {
+function Gallery({ title = 'Unsere', titleAccent = 'Momente', images = [] }) {
   const [visible, setVisible] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const sectionRef = useRef(null);
+
+  const defaultImages = [
+    { src: null, alt: 'Bild 1' },
+    { src: null, alt: 'Bild 2' },
+    { src: null, alt: 'Bild 3' },
+    { src: null, alt: 'Bild 4' },
+    { src: null, alt: 'Bild 5' },
+    { src: null, alt: 'Bild 6' },
+  ];
+
+  const galleryImages = images.length > 0 ? images : defaultImages;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -235,93 +168,69 @@ function Gallery({
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    if (lightboxOpen) {
-      document.body.style.overflow = 'hidden';
+  const openLightbox = (index) => {
+    setCurrentIndex(index);
+    setLightboxOpen(true);
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+    document.body.style.overflow = '';
+  };
+
+  const navigate = useCallback((direction) => {
+    if (direction === 'prev') {
+      setCurrentIndex(prev => prev === 0 ? galleryImages.length - 1 : prev - 1);
     } else {
-      document.body.style.overflow = 'unset';
+      setCurrentIndex(prev => prev === galleryImages.length - 1 ? 0 : prev + 1);
     }
-  }, [lightboxOpen]);
+  }, [galleryImages.length]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!lightboxOpen) return;
-      if (e.key === 'Escape') setLightboxOpen(false);
-      if (e.key === 'ArrowLeft') navigateLightbox(-1);
-      if (e.key === 'ArrowRight') navigateLightbox(1);
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') navigate('prev');
+      if (e.key === 'ArrowRight') navigate('next');
     };
-    
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [lightboxOpen, currentIndex]);
+  }, [lightboxOpen, navigate]);
 
-  const openLightbox = (index) => {
-    setCurrentIndex(index);
-    setLightboxOpen(true);
-  };
-
-  const navigateLightbox = (direction) => {
-    const newIndex = currentIndex + direction;
-    if (newIndex >= 0 && newIndex < images.length) {
-      setCurrentIndex(newIndex);
-    }
-  };
+  const hasImages = galleryImages.some(img => img.src);
 
   return (
     <Section ref={sectionRef} id="gallery">
       <Container>
-        <Header visible={visible}>
-          <Eyebrow>Galerie</Eyebrow>
-          <Title>{title} <span>{titleAccent}</span></Title>
+        <Header>
+          <Eyebrow $visible={visible}>Galerie</Eyebrow>
+          <Title $visible={visible}>{title} <span>{titleAccent}</span></Title>
         </Header>
         
-        <MasonryGrid>
-          {images.map((image, i) => (
-            <GalleryItem 
-              key={i} 
-              index={i} 
-              visible={visible}
-              onClick={() => openLightbox(i)}
-            >
-              {image.src ? (
-                <img src={image.src} alt={image.alt} />
-              ) : (
-                <PlaceholderImage>
-                  <span>Foto {i + 1}</span>
-                </PlaceholderImage>
-              )}
-            </GalleryItem>
-          ))}
-        </MasonryGrid>
-      </Container>
-      
-      <Lightbox isOpen={lightboxOpen} onClick={() => setLightboxOpen(false)}>
-        <LightboxClose onClick={() => setLightboxOpen(false)}>✕</LightboxClose>
-        
-        {currentIndex > 0 && (
-          <LightboxNav direction="prev" onClick={(e) => { e.stopPropagation(); navigateLightbox(-1); }}>
-            ←
-          </LightboxNav>
+        {hasImages ? (
+          <Grid>
+            {galleryImages.map((img, i) => (
+              <ImageWrapper key={i} $index={i} $visible={visible} onClick={() => img.src && openLightbox(i)}>
+                <Image $src={img.src} $tall={i % 3 === 0} />
+              </ImageWrapper>
+            ))}
+          </Grid>
+        ) : (
+          <Placeholder>
+            <PlaceholderText>Hier werden bald unsere gemeinsamen Fotos erscheinen.</PlaceholderText>
+          </Placeholder>
         )}
         
-        <LightboxImage onClick={(e) => e.stopPropagation()}>
-          {images[currentIndex]?.src ? (
-            <img src={images[currentIndex].src} alt={images[currentIndex].alt} />
-          ) : (
-            <PlaceholderImage style={{ width: '60vw', height: '60vh' }}>
-              <span>Foto {currentIndex + 1}</span>
-            </PlaceholderImage>
+        <Lightbox $open={lightboxOpen} onClick={closeLightbox}>
+          <LightboxClose onClick={closeLightbox}>×</LightboxClose>
+          <LightboxNav $direction="prev" onClick={(e) => { e.stopPropagation(); navigate('prev'); }}>‹</LightboxNav>
+          {galleryImages[currentIndex]?.src && (
+            <LightboxImage src={galleryImages[currentIndex].src} alt={galleryImages[currentIndex].alt} onClick={(e) => e.stopPropagation()} />
           )}
-        </LightboxImage>
-        
-        {currentIndex < images.length - 1 && (
-          <LightboxNav direction="next" onClick={(e) => { e.stopPropagation(); navigateLightbox(1); }}>
-            →
-          </LightboxNav>
-        )}
-        
-        <LightboxCounter>{currentIndex + 1} / {images.length}</LightboxCounter>
-      </Lightbox>
+          <LightboxNav $direction="next" onClick={(e) => { e.stopPropagation(); navigate('next'); }}>›</LightboxNav>
+        </Lightbox>
+      </Container>
     </Section>
   );
 }

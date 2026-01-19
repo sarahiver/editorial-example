@@ -1,5 +1,4 @@
-// Editorial Theme - Hero
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
 const fadeInUp = keyframes`
@@ -8,14 +7,8 @@ const fadeInUp = keyframes`
 `;
 
 const clipReveal = keyframes`
-  from { 
-    clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
-    transform: translateY(20px);
-  }
-  to { 
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-    transform: translateY(0);
-  }
+  from { clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%); transform: translateY(20px); }
+  to { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); transform: translateY(0); }
 `;
 
 const lineExtend = keyframes`
@@ -92,29 +85,19 @@ const Names = styled.h1`
   line-height: 0.9;
   margin-bottom: 2rem;
   
-  .line {
-    display: block;
-    overflow: hidden;
-  }
+  .line { display: block; overflow: hidden; }
   
   .word {
     display: inline-block;
     opacity: 0;
     animation: ${clipReveal} 1s cubic-bezier(0.77, 0, 0.175, 1) forwards;
-    
     &:nth-child(1) { animation-delay: 0.5s; }
     &:nth-child(2) { animation-delay: 0.7s; }
+    &:nth-child(3) { animation-delay: 0.9s; }
   }
   
-  .italic {
-    font-style: italic;
-  }
-  
-  .ampersand {
-    font-size: 0.6em;
-    color: #999;
-    margin: 0 0.2em;
-  }
+  .italic { font-style: italic; }
+  .ampersand { font-size: 0.6em; color: #999; margin: 0 0.2em; }
 `;
 
 const Divider = styled.div`
@@ -128,7 +111,7 @@ const Divider = styled.div`
   animation-delay: 1s;
 `;
 
-const Date = styled.p`
+const DateText = styled.p`
   font-family: 'Instrument Serif', serif;
   font-size: clamp(1.2rem, 3vw, 1.8rem);
   color: #1A1A1A;
@@ -136,10 +119,7 @@ const Date = styled.p`
   opacity: 0;
   animation: ${fadeInUp} 0.8s ease forwards;
   animation-delay: 1.2s;
-  
-  span {
-    font-style: italic;
-  }
+  span { font-style: italic; }
 `;
 
 const Location = styled.p`
@@ -167,9 +147,7 @@ const ScrollHint = styled.div`
   animation: ${fadeInUp} 0.8s ease forwards;
   animation-delay: 1.8s;
   
-  @media (max-width: 768px) {
-    display: none;
-  }
+  @media (max-width: 768px) { display: none; }
   
   span {
     font-family: 'Inter', sans-serif;
@@ -199,32 +177,20 @@ const ScrollLine = styled.div`
   }
 `;
 
-// Optional: Hero mit Bild
-const ImageOverlay = styled.div`
-  position: absolute;
-  inset: 0;
-  background: url(${p => p.image}) center/cover no-repeat;
-  opacity: 0.1;
-  pointer-events: none;
-`;
-
 function Hero({
   name1 = 'Sarah',
   name2 = 'Max',
   date = '15. August 2025',
   location = 'Schloss Heidelberg',
   eyebrow = 'Wir heiraten',
-  backgroundImage = null,
 }) {
   return (
     <Section id="top">
       <BackgroundGrid />
       <BackgroundCircle />
-      {backgroundImage && <ImageOverlay image={backgroundImage} />}
       
       <Content>
         <Eyebrow>{eyebrow}</Eyebrow>
-        
         <Names>
           <span className="line">
             <span className="word">{name1}</span>
@@ -232,13 +198,8 @@ function Hero({
             <span className="word italic">{name2}</span>
           </span>
         </Names>
-        
         <Divider />
-        
-        <Date>
-          <span>{date}</span>
-        </Date>
-        
+        <DateText><span>{date}</span></DateText>
         <Location>{location}</Location>
       </Content>
       

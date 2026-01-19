@@ -1,30 +1,24 @@
-// Editorial Theme - Demo App
-import EditorialGlobalStyles from "./styles/GlobalStyles"
-import WeddingPage from "./WeddingPage"
+import React from 'react';
+import EditorialGlobalStyles from './styles/GlobalStyles';
+import WeddingPage from './WeddingPage';
 
-// Custom wedding data for demo
 const demoWeddingData = {
   couple: {
-    name1: "Sarah",
-    name2: "Max",
-    coupleNames: "Sarah & Max",
+    name1: 'Sarah',
+    name2: 'Max',
   },
-
   wedding: {
-    date: "2025-08-15T14:00:00",
-    dateFormatted: "15. August 2025",
-    location: "Schloss Heidelberg",
+    date: '15. August 2025',
+    dateISO: '2025-08-15T14:00:00',
+    location: 'Schloss Heidelberg',
   },
-
   navLinks: [
-    { label: "Unser Weg", href: "#story" },
-    { label: "Hochzeit", href: "#location" },
-    { label: "Ablauf", href: "#timeline" },
-    { label: "RSVP", href: "#rsvp" },
-    { label: "Galerie", href: "#gallery" },
-    { label: "FAQ", href: "#faq" },
+    { label: 'Unser Weg', href: '#story' },
+    { label: 'Hochzeit', href: '#location' },
+    { label: 'Ablauf', href: '#timeline' },
+    { label: 'RSVP', href: '#rsvp' },
+    { label: 'FAQ', href: '#faq' },
   ],
-
   activeComponents: {
     hero: true,
     countdown: true,
@@ -33,12 +27,12 @@ const demoWeddingData = {
     timeline: true,
     rsvp: true,
     gallery: true,
-    gifts: true,
     faq: true,
+    gifts: true,
     weddingABC: true,
     photoUpload: false,
   },
-}
+};
 
 function App() {
   return (
@@ -46,7 +40,7 @@ function App() {
       <EditorialGlobalStyles />
       <WeddingPage weddingData={demoWeddingData} />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

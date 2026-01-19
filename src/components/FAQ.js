@@ -1,11 +1,9 @@
-// Editorial Theme - FAQ
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 const Section = styled.section`
   padding: 8rem 2rem;
-  background: #FFF;
-  position: relative;
+  background: #FAFAFA;
 `;
 
 const Container = styled.div`
@@ -16,9 +14,6 @@ const Container = styled.div`
 const Header = styled.div`
   text-align: center;
   margin-bottom: 4rem;
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: translateY(${p => p.visible ? 0 : '30px'});
-  transition: all 0.8s ease;
 `;
 
 const Eyebrow = styled.div`
@@ -29,133 +24,91 @@ const Eyebrow = styled.div`
   text-transform: uppercase;
   color: #666;
   margin-bottom: 1.5rem;
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s ease;
 `;
 
 const Title = styled.h2`
   font-family: 'Instrument Serif', serif;
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: 400;
   color: #000;
-  
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s ease;
+  transition-delay: 0.1s;
   span { font-style: italic; }
 `;
 
-const FAQList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+const AccordionList = styled.div`
+  border-top: 1px solid #E0E0E0;
 `;
 
-const FAQItem = styled.div`
+const AccordionItem = styled.div`
   border-bottom: 1px solid #E0E0E0;
-  opacity: ${p => p.visible ? 1 : 0};
-  transform: translateY(${p => p.visible ? 0 : '20px'});
-  transition: all 0.6s ease;
-  transition-delay: ${p => 0.1 + p.index * 0.08}s;
-  
-  &:first-child {
-    border-top: 1px solid #E0E0E0;
-  }
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
+  transition: all 0.8s ease;
+  transition-delay: ${p => 0.2 + p.$index * 0.1}s;
 `;
 
-const Question = styled.button`
+const AccordionHeader = styled.button`
   width: 100%;
+  padding: 1.5rem 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 0;
   background: none;
   border: none;
   cursor: pointer;
   text-align: left;
-  gap: 1rem;
-  
-  &:hover h4 {
-    color: #666;
-  }
 `;
 
-const QuestionText = styled.h4`
+const Question = styled.span`
   font-family: 'Instrument Serif', serif;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 400;
   color: #000;
-  transition: color 0.3s ease;
-  flex: 1;
+  padding-right: 2rem;
 `;
 
 const ToggleIcon = styled.span`
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   color: #000;
   transition: transform 0.3s ease;
-  
-  ${p => p.isOpen && css`
-    transform: rotate(45deg);
-  `}
+  transform: rotate(${p => p.$open ? '45deg' : '0'});
 `;
 
-const Answer = styled.div`
-  max-height: ${p => p.isOpen ? '500px' : '0'};
+const AccordionContent = styled.div`
+  max-height: ${p => p.$open ? '500px' : '0'};
   overflow: hidden;
   transition: max-height 0.4s ease;
 `;
 
-const AnswerContent = styled.div`
+const Answer = styled.div`
   padding-bottom: 1.5rem;
-  
-  p {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.95rem;
-    color: #666;
-    line-height: 1.7;
-  }
-  
-  a {
-    color: #000;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    
-    &:hover {
-      text-decoration: none;
-    }
-  }
-  
-  ul {
-    margin-top: 1rem;
-    padding-left: 1.5rem;
-    
-    li {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.9rem;
-      color: #666;
-      line-height: 1.8;
-      
-      &::marker {
-        color: #000;
-      }
-    }
-  }
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.7;
 `;
 
 const ContactBox = styled.div`
   margin-top: 4rem;
   padding: 2rem;
-  background: #FAFAFA;
+  background: #FFF;
   border: 1px solid #E0E0E0;
   text-align: center;
-  opacity: ${p => p.visible ? 1 : 0};
+  opacity: ${p => p.$visible ? 1 : 0};
+  transform: translateY(${p => p.$visible ? 0 : '20px'});
   transition: all 0.8s ease;
   transition-delay: 0.5s;
 `;
 
 const ContactTitle = styled.h4`
   font-family: 'Instrument Serif', serif;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 400;
   color: #000;
   margin-bottom: 0.75rem;
@@ -165,51 +118,38 @@ const ContactText = styled.p`
   font-family: 'Inter', sans-serif;
   font-size: 0.9rem;
   color: #666;
-  
-  a {
-    color: #000;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    
-    &:hover { text-decoration: none; }
-  }
+  margin-bottom: 1rem;
 `;
 
-function FAQ({
-  title = 'Häufige',
-  titleAccent = 'Fragen',
-  faqs = [
-    {
-      question: 'Gibt es einen Dresscode?',
-      answer: 'Wir freuen uns über festliche Kleidung. Die Herren dürfen gerne im Anzug erscheinen, Damen in eleganten Kleidern. Bitte bedenkt, dass die Trauung im Schloss und Teile der Feier im Freien stattfinden.',
-    },
-    {
-      question: 'Kann ich eine Begleitung mitbringen?',
-      answer: 'Aufgrund begrenzter Plätze können wir leider nur die auf der Einladung genannten Personen empfangen. Falls ihr unsicher seid, sprecht uns gerne an!',
-    },
-    {
-      question: 'Sind Kinder willkommen?',
-      answer: 'Wir feiern diesen besonderen Tag gerne mit euren Kindern! Bitte gebt bei der RSVP an, ob ihr mit Kindern kommt, damit wir entsprechend planen können.',
-    },
-    {
-      question: 'Gibt es Übernachtungsmöglichkeiten?',
-      answer: 'Wir haben Zimmerkontingente in folgenden Hotels reserviert: Hotel Heidelberg (5 Min. entfernt) und Pension Schlossblick. Bei Buchung gebt bitte "Hochzeit Sarah & Max" an.',
-    },
-    {
-      question: 'Darf ich Fotos machen?',
-      answer: 'Während der Trauung bitten wir euch, die Handys wegzustecken und den Moment mit uns zu genießen. Unser Fotograf wird alles festhalten. Bei der Feier dürft ihr natürlich gerne fotografieren!',
-    },
-    {
-      question: 'Was ist mit Geschenken?',
-      answer: 'Eure Anwesenheit ist das größte Geschenk. Solltet ihr uns dennoch etwas schenken wollen, findet ihr unter "Geschenke" weitere Informationen.',
-    },
-  ],
-  contactText = 'Noch Fragen? Schreibt uns an',
-  contactEmail = 'hochzeit@sarah-und-max.de',
-}) {
+const ContactLink = styled.a`
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #000;
+  padding-bottom: 2px;
+  border-bottom: 1px solid #000;
+  transition: all 0.3s ease;
+  
+  &:hover { color: #666; border-color: #666; }
+`;
+
+function FAQ({ title = 'Häufige', titleAccent = 'Fragen', faqs = [], contactEmail = 'hochzeit@email.de' }) {
   const [visible, setVisible] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
+
+  const defaultFaqs = [
+    { question: 'Gibt es einen Dresscode?', answer: 'Wir freuen uns auf elegante Abendgarderobe. Die Herren gerne im Anzug, die Damen im Cocktail- oder Abendkleid. Bitte vermeidet Weiß, das ist der Braut vorbehalten.' },
+    { question: 'Kann ich jemanden mitbringen?', answer: 'Bitte habt Verständnis, dass wir nur die auf der Einladung genannten Personen empfangen können. Bei Fragen kontaktiert uns gerne.' },
+    { question: 'Sind Kinder willkommen?', answer: 'Wir haben uns für eine Feier nur für Erwachsene entschieden. Wir hoffen auf euer Verständnis.' },
+    { question: 'Gibt es Parkplätze vor Ort?', answer: 'Ja, ausreichend Parkplätze sind direkt an der Location vorhanden. Diese sind kostenlos.' },
+    { question: 'Gibt es Übernachtungsmöglichkeiten?', answer: 'In der Nähe gibt es mehrere Hotels. Wir haben ein Zimmerkontingent im Hotel Schlossblick reserviert. Nennt bei der Buchung das Stichwort "Hochzeit Sarah & Max".' },
+    { question: 'Darf ich während der Trauung fotografieren?', answer: 'Wir haben einen professionellen Fotografen. Bitte verzichtet während der Trauung auf eigene Fotos. Bei der Feier könnt ihr gerne knipsen!' },
+  ];
+
+  const items = faqs.length > 0 ? faqs : defaultFaqs;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -220,40 +160,33 @@ function FAQ({
     return () => observer.disconnect();
   }, []);
 
-  const toggleFAQ = (index) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
-
   return (
     <Section ref={sectionRef} id="faq">
       <Container>
-        <Header visible={visible}>
-          <Eyebrow>FAQ</Eyebrow>
-          <Title>{title} <span>{titleAccent}</span></Title>
+        <Header>
+          <Eyebrow $visible={visible}>FAQ</Eyebrow>
+          <Title $visible={visible}>{title} <span>{titleAccent}</span></Title>
         </Header>
         
-        <FAQList>
-          {faqs.map((faq, i) => (
-            <FAQItem key={i} index={i} visible={visible}>
-              <Question onClick={() => toggleFAQ(i)}>
-                <QuestionText>{faq.question}</QuestionText>
-                <ToggleIcon isOpen={openIndex === i}>+</ToggleIcon>
-              </Question>
-              <Answer isOpen={openIndex === i}>
-                <AnswerContent>
-                  <p>{faq.answer}</p>
-                </AnswerContent>
-              </Answer>
-            </FAQItem>
+        <AccordionList>
+          {items.map((item, i) => (
+            <AccordionItem key={i} $index={i} $visible={visible}>
+              <AccordionHeader onClick={() => setOpenIndex(openIndex === i ? null : i)}>
+                <Question>{item.question}</Question>
+                <ToggleIcon $open={openIndex === i}>+</ToggleIcon>
+              </AccordionHeader>
+              <AccordionContent $open={openIndex === i}>
+                <Answer>{item.answer}</Answer>
+              </AccordionContent>
+            </AccordionItem>
           ))}
-        </FAQList>
+        </AccordionList>
         
         {contactEmail && (
-          <ContactBox visible={visible}>
-            <ContactTitle>Weitere Fragen?</ContactTitle>
-            <ContactText>
-              {contactText} <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
-            </ContactText>
+          <ContactBox $visible={visible}>
+            <ContactTitle>Noch Fragen?</ContactTitle>
+            <ContactText>Wir helfen euch gerne weiter.</ContactText>
+            <ContactLink href={`mailto:${contactEmail}`}>E-Mail schreiben</ContactLink>
           </ContactBox>
         )}
       </Container>
