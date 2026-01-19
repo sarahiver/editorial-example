@@ -1,25 +1,52 @@
-import logo from './logo.svg';
-import './App.css';
+// Editorial Theme - Demo App
+import EditorialGlobalStyles from "./styles/GlobalStyles"
+import WeddingPage from "./WeddingPage"
+
+// Custom wedding data for demo
+const demoWeddingData = {
+  couple: {
+    name1: "Sarah",
+    name2: "Max",
+    coupleNames: "Sarah & Max",
+  },
+
+  wedding: {
+    date: "2025-08-15T14:00:00",
+    dateFormatted: "15. August 2025",
+    location: "Schloss Heidelberg",
+  },
+
+  navLinks: [
+    { label: "Unser Weg", href: "#story" },
+    { label: "Hochzeit", href: "#location" },
+    { label: "Ablauf", href: "#timeline" },
+    { label: "RSVP", href: "#rsvp" },
+    { label: "Galerie", href: "#gallery" },
+    { label: "FAQ", href: "#faq" },
+  ],
+
+  activeComponents: {
+    hero: true,
+    countdown: true,
+    loveStory: true,
+    locations: true,
+    timeline: true,
+    rsvp: true,
+    gallery: true,
+    gifts: true,
+    faq: true,
+    weddingABC: true,
+    photoUpload: false,
+  },
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <>
+      <EditorialGlobalStyles />
+      <WeddingPage weddingData={demoWeddingData} />
+    </>
+  )
 }
 
-export default App;
+export default App
