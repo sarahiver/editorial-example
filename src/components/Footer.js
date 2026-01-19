@@ -5,6 +5,29 @@ const FooterSection = styled.footer`
   background: #000;
   color: #FFF;
   padding: 5rem 2rem 2rem;
+  position: relative;
+`;
+
+const IncludedBadge = styled.div`
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  background: #FFF;
+  color: #000;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  
+  &::before {
+    content: '✓';
+    font-size: 0.7rem;
+  }
 `;
 
 const Container = styled.div`
@@ -31,7 +54,10 @@ const Logo = styled.div`
   font-family: 'Instrument Serif', serif;
   font-size: 2rem;
   margin-bottom: 1rem;
-  span { font-style: italic; }
+  
+  span {
+    font-style: italic;
+  }
 `;
 
 const Tagline = styled.p`
@@ -41,7 +67,10 @@ const Tagline = styled.p`
   line-height: 1.7;
   max-width: 300px;
   
-  @media (max-width: 768px) { max-width: none; margin: 0 auto; }
+  @media (max-width: 768px) {
+    max-width: none;
+    margin: 0 auto;
+  }
 `;
 
 const NavColumn = styled.div``;
@@ -61,7 +90,9 @@ const NavList = styled.ul`
   flex-direction: column;
   gap: 0.75rem;
   
-  @media (max-width: 768px) { align-items: center; }
+  @media (max-width: 768px) {
+    align-items: center;
+  }
 `;
 
 const NavLink = styled.a`
@@ -70,7 +101,9 @@ const NavLink = styled.a`
   color: #CCC;
   transition: color 0.3s ease;
   
-  &:hover { color: #FFF; }
+  &:hover {
+    color: #FFF;
+  }
 `;
 
 const Divider = styled.div`
@@ -86,7 +119,10 @@ const Bottom = styled.div`
   flex-wrap: wrap;
   gap: 1rem;
   
-  @media (max-width: 768px) { flex-direction: column; text-align: center; }
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+  }
 `;
 
 const Copyright = styled.p`
@@ -106,13 +142,15 @@ const AdminLink = styled.button`
   cursor: pointer;
   transition: color 0.3s ease;
   
-  &:hover { color: #999; }
+  &:hover {
+    color: #999;
+  }
 `;
 
 const Modal = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,7 +180,9 @@ const ModalClose = styled.button`
   color: #999;
   cursor: pointer;
   
-  &:hover { color: #000; }
+  &:hover {
+    color: #000;
+  }
 `;
 
 const ModalTitle = styled.h3`
@@ -179,7 +219,11 @@ const Input = styled.input`
   border: 1px solid #E0E0E0;
   transition: all 0.3s ease;
   
-  &:focus { outline: none; border-color: #000; background: #FFF; }
+  &:focus {
+    outline: none;
+    border-color: #000;
+    background: #FFF;
+  }
 `;
 
 const SubmitButton = styled.button`
@@ -196,7 +240,9 @@ const SubmitButton = styled.button`
   cursor: pointer;
   transition: all 0.3s ease;
   
-  &:hover { background: #333; }
+  &:hover {
+    background: #333;
+  }
 `;
 
 const ErrorMessage = styled.p`
@@ -209,12 +255,13 @@ const ErrorMessage = styled.p`
 
 function Footer({
   coupleNames = 'Sarah & Max',
-  tagline = 'Wir freuen uns, unseren besonderen Tag mit euch zu teilen.',
+  tagline = 'Wir freuen uns, diesen besonderen Tag mit euch zu teilen.',
   links = [],
   quickLinks = [],
   onLogin,
   adminEmail = 'admin',
   adminPassword = 'password',
+  showBadge = false,
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [email, setEmail] = useState('');
@@ -241,7 +288,9 @@ function Footer({
     setError('');
     
     if (email === adminEmail && password === adminPassword) {
-      if (onLogin) onLogin(email, password);
+      if (onLogin) {
+        onLogin(email, password);
+      }
       setModalOpen(false);
       setEmail('');
       setPassword('');
@@ -251,27 +300,41 @@ function Footer({
   };
 
   const year = new Date().getFullYear();
+  const name1 = coupleNames.split('&')[0]?.trim() || '';
+  const name2 = coupleNames.split('&')[1]?.trim() || '';
 
   return (
     <FooterSection>
+      {showBadge && <IncludedBadge>Inklusive</IncludedBadge>}
+      
       <Container>
         <Grid>
           <Brand>
-            <Logo>{coupleNames.split('&')[0]?.trim()} <span>&</span> {coupleNames.split('&')[1]?.trim()}</Logo>
+            <Logo>
+              {name1} <span>&</span> {name2}
+            </Logo>
             <Tagline>{tagline}</Tagline>
           </Brand>
           
           <NavColumn>
             <NavTitle>Navigation</NavTitle>
             <NavList>
-              {navLinks.map((link, i) => <li key={i}><NavLink href={link.href}>{link.label}</NavLink></li>)}
+              {navLinks.map((link, i) => (
+                <li key={i}>
+                  <NavLink href={link.href}>{link.label}</NavLink>
+                </li>
+              ))}
             </NavList>
           </NavColumn>
           
           <NavColumn>
             <NavTitle>Quick Links</NavTitle>
             <NavList>
-              {quickNavLinks.map((link, i) => <li key={i}><NavLink href={link.href}>{link.label}</NavLink></li>)}
+              {quickNavLinks.map((link, i) => (
+                <li key={i}>
+                  <NavLink href={link.href}>{link.label}</NavLink>
+                </li>
+              ))}
             </NavList>
           </NavColumn>
         </Grid>
@@ -292,15 +355,28 @@ function Footer({
           <form onSubmit={handleSubmit}>
             <FormGroup>
               <Label>E-Mail</Label>
-              <Input type="text" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@email.de" required />
+              <Input
+                type="text"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="admin@email.de"
+                required
+              />
             </FormGroup>
             
             <FormGroup>
               <Label>Passwort</Label>
-              <Input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required />
+              <Input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+              />
             </FormGroup>
             
             <SubmitButton type="submit">Anmelden</SubmitButton>
+            
             {error && <ErrorMessage>{error}</ErrorMessage>}
           </form>
         </ModalContent>

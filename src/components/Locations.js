@@ -74,9 +74,7 @@ const CardImage = styled.div`
   background: ${p => p.$image ? `url(${p.$image}) center/cover` : '#F0F0F0'};
   transition: transform 0.6s ease;
   
-  ${Card}:hover & {
-    transform: scale(1.05);
-  }
+  ${Card}:hover & { transform: scale(1.05); }
 `;
 
 const CardContent = styled.div`
@@ -135,47 +133,10 @@ const MapLink = styled.a`
   border-bottom: 1px solid #000;
   transition: all 0.3s ease;
   
-  &:hover {
-    color: #666;
-    border-color: #666;
-  }
+  &:hover { color: #666; border-color: #666; }
 `;
 
-const InfoBox = styled.div`
-  margin-top: 3rem;
-  padding: 2rem;
-  background: #FFF;
-  border: 1px solid #E0E0E0;
-  text-align: center;
-  opacity: ${p => p.$visible ? 1 : 0};
-  transform: translateY(${p => p.$visible ? 0 : '20px'});
-  transition: all 0.8s ease;
-  transition-delay: 0.4s;
-`;
-
-const InfoTitle = styled.h4`
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.25rem;
-  font-weight: 400;
-  color: #000;
-  margin-bottom: 1rem;
-`;
-
-const InfoText = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: #666;
-  line-height: 1.7;
-  margin: 0;
-`;
-
-function Locations({
-  title = 'Die',
-  titleAccent = 'Locations',
-  locations = [],
-  infoTitle = 'Anreise',
-  infoText = 'Parkplätze sind vor Ort vorhanden. Vom Hauptbahnhof erreicht ihr uns mit dem Taxi in ca. 15 Minuten.',
-}) {
+function Locations({ title = 'Die', titleAccent = 'Locations', locations = [] }) {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
@@ -212,33 +173,13 @@ function Locations({
               <CardContent>
                 <LocationType>{loc.type}</LocationType>
                 <LocationName>{loc.name}</LocationName>
-                
-                <DetailRow>
-                  <DetailIcon>📍</DetailIcon>
-                  <DetailText>{loc.address}</DetailText>
-                </DetailRow>
-                
-                <DetailRow>
-                  <DetailIcon>🕐</DetailIcon>
-                  <DetailText>{loc.time}</DetailText>
-                </DetailRow>
-                
-                {loc.mapUrl && (
-                  <MapLink href={loc.mapUrl} target="_blank" rel="noopener noreferrer">
-                    Route anzeigen →
-                  </MapLink>
-                )}
+                <DetailRow><DetailIcon>📍</DetailIcon><DetailText>{loc.address}</DetailText></DetailRow>
+                <DetailRow><DetailIcon>🕐</DetailIcon><DetailText>{loc.time}</DetailText></DetailRow>
+                {loc.mapUrl && <MapLink href={loc.mapUrl} target="_blank" rel="noopener noreferrer">Route anzeigen →</MapLink>}
               </CardContent>
             </Card>
           ))}
         </Grid>
-        
-        {infoText && (
-          <InfoBox $visible={visible}>
-            <InfoTitle>{infoTitle}</InfoTitle>
-            <InfoText>{infoText}</InfoText>
-          </InfoBox>
-        )}
       </Container>
     </Section>
   );

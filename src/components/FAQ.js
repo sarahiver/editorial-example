@@ -47,6 +47,7 @@ const AccordionList = styled.div`
 
 const AccordionItem = styled.div`
   border-bottom: 1px solid #E0E0E0;
+  background: #FFF;
   opacity: ${p => p.$visible ? 1 : 0};
   transform: translateY(${p => p.$visible ? 0 : '20px'});
   transition: all 0.8s ease;
@@ -55,7 +56,7 @@ const AccordionItem = styled.div`
 
 const AccordionHeader = styled.button`
   width: 100%;
-  padding: 1.5rem 0;
+  padding: 1.5rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -63,11 +64,16 @@ const AccordionHeader = styled.button`
   border: none;
   cursor: pointer;
   text-align: left;
+  transition: background 0.3s ease;
+  
+  &:hover {
+    background: #FAFAFA;
+  }
 `;
 
 const Question = styled.span`
   font-family: 'Instrument Serif', serif;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 400;
   color: #000;
   padding-right: 2rem;
@@ -78,6 +84,7 @@ const ToggleIcon = styled.span`
   color: #000;
   transition: transform 0.3s ease;
   transform: rotate(${p => p.$open ? '45deg' : '0'});
+  flex-shrink: 0;
 `;
 
 const AccordionContent = styled.div`
@@ -87,7 +94,7 @@ const AccordionContent = styled.div`
 `;
 
 const Answer = styled.div`
-  padding-bottom: 1.5rem;
+  padding: 0 2rem 1.5rem 2rem;
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   color: #666;
@@ -95,7 +102,7 @@ const Answer = styled.div`
 `;
 
 const ContactBox = styled.div`
-  margin-top: 4rem;
+  margin-top: 3rem;
   padding: 2rem;
   background: #FFF;
   border: 1px solid #E0E0E0;
@@ -132,21 +139,55 @@ const ContactLink = styled.a`
   border-bottom: 1px solid #000;
   transition: all 0.3s ease;
   
-  &:hover { color: #666; border-color: #666; }
+  &:hover {
+    color: #666;
+    border-color: #666;
+  }
 `;
 
-function FAQ({ title = 'Häufige', titleAccent = 'Fragen', faqs = [], contactEmail = 'hochzeit@email.de' }) {
+function FAQ({
+  title = 'Häufige',
+  titleAccent = 'Fragen',
+  faqs = [],
+  contactEmail = 'hochzeit@email.de',
+}) {
   const [visible, setVisible] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
 
   const defaultFaqs = [
-    { question: 'Gibt es einen Dresscode?', answer: 'Wir freuen uns auf elegante Abendgarderobe. Die Herren gerne im Anzug, die Damen im Cocktail- oder Abendkleid. Bitte vermeidet Weiß, das ist der Braut vorbehalten.' },
-    { question: 'Kann ich jemanden mitbringen?', answer: 'Bitte habt Verständnis, dass wir nur die auf der Einladung genannten Personen empfangen können. Bei Fragen kontaktiert uns gerne.' },
-    { question: 'Sind Kinder willkommen?', answer: 'Wir haben uns für eine Feier nur für Erwachsene entschieden. Wir hoffen auf euer Verständnis.' },
-    { question: 'Gibt es Parkplätze vor Ort?', answer: 'Ja, ausreichend Parkplätze sind direkt an der Location vorhanden. Diese sind kostenlos.' },
-    { question: 'Gibt es Übernachtungsmöglichkeiten?', answer: 'In der Nähe gibt es mehrere Hotels. Wir haben ein Zimmerkontingent im Hotel Schlossblick reserviert. Nennt bei der Buchung das Stichwort "Hochzeit Sarah & Max".' },
-    { question: 'Darf ich während der Trauung fotografieren?', answer: 'Wir haben einen professionellen Fotografen. Bitte verzichtet während der Trauung auf eigene Fotos. Bei der Feier könnt ihr gerne knipsen!' },
+    {
+      question: 'Gibt es einen Dresscode?',
+      answer: 'Wir freuen uns auf elegante Abendgarderobe. Die Herren gerne im Anzug, die Damen im Cocktail- oder Abendkleid. Bitte vermeidet Weiß, das ist der Braut vorbehalten.',
+    },
+    {
+      question: 'Kann ich jemanden mitbringen?',
+      answer: 'Bitte habt Verständnis, dass wir nur die auf der Einladung genannten Personen empfangen können. Bei Fragen kontaktiert uns gerne.',
+    },
+    {
+      question: 'Sind Kinder willkommen?',
+      answer: 'Wir haben uns für eine Feier nur für Erwachsene entschieden. Wir hoffen auf euer Verständnis.',
+    },
+    {
+      question: 'Gibt es Parkplätze vor Ort?',
+      answer: 'Ja, ausreichend kostenlose Parkplätze sind direkt an der Location vorhanden.',
+    },
+    {
+      question: 'Gibt es Übernachtungsmöglichkeiten?',
+      answer: 'In der Nähe gibt es mehrere Hotels. Wir haben ein Zimmerkontingent im Hotel Schlossblick reserviert. Nennt bei der Buchung das Stichwort "Hochzeit Sarah & Max".',
+    },
+    {
+      question: 'Darf ich während der Trauung fotografieren?',
+      answer: 'Wir haben einen professionellen Fotografen. Bitte verzichtet während der Trauung auf eigene Fotos, damit alle den Moment genießen können. Bei der Feier könnt ihr gerne knipsen!',
+    },
+    {
+      question: 'Was soll ich schenken?',
+      answer: 'Das größte Geschenk ist eure Anwesenheit! Wer uns dennoch etwas schenken möchte, findet unter "Geschenke" unsere Wunschliste.',
+    },
+    {
+      question: 'Bis wann muss ich zusagen?',
+      answer: 'Bitte gebt uns bis zum 15. Juni Bescheid, ob ihr dabei seid. Das hilft uns sehr bei der Planung!',
+    },
   ];
 
   const items = faqs.length > 0 ? faqs : defaultFaqs;
@@ -160,6 +201,10 @@ function FAQ({ title = 'Häufige', titleAccent = 'Fragen', faqs = [], contactEma
     return () => observer.disconnect();
   }, []);
 
+  const toggleItem = (index) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
   return (
     <Section ref={sectionRef} id="faq">
       <Container>
@@ -171,7 +216,7 @@ function FAQ({ title = 'Häufige', titleAccent = 'Fragen', faqs = [], contactEma
         <AccordionList>
           {items.map((item, i) => (
             <AccordionItem key={i} $index={i} $visible={visible}>
-              <AccordionHeader onClick={() => setOpenIndex(openIndex === i ? null : i)}>
+              <AccordionHeader onClick={() => toggleItem(i)}>
                 <Question>{item.question}</Question>
                 <ToggleIcon $open={openIndex === i}>+</ToggleIcon>
               </AccordionHeader>

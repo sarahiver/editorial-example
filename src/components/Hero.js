@@ -7,8 +7,8 @@ const fadeInUp = keyframes`
 `;
 
 const clipReveal = keyframes`
-  from { clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%); transform: translateY(20px); }
-  to { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); transform: translateY(0); }
+  from { clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%); }
+  to { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
 `;
 
 const lineExtend = keyframes`
@@ -29,6 +29,29 @@ const Section = styled.section`
   position: relative;
   overflow: hidden;
   background: #FFFFFF;
+`;
+
+const IncludedBadge = styled.div`
+  position: absolute;
+  top: 100px;
+  right: 2rem;
+  background: #000;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.8rem;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  
+  &::before {
+    content: '✓';
+    font-size: 0.7rem;
+  }
 `;
 
 const BackgroundGrid = styled.div`
@@ -183,9 +206,11 @@ function Hero({
   date = '15. August 2025',
   location = 'Schloss Heidelberg',
   eyebrow = 'Wir heiraten',
+  showBadge = false,
 }) {
   return (
     <Section id="top">
+      {showBadge && <IncludedBadge>Inklusive</IncludedBadge>}
       <BackgroundGrid />
       <BackgroundCircle />
       

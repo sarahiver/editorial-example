@@ -4,6 +4,7 @@ import styled from 'styled-components';
 const Section = styled.section`
   padding: 8rem 2rem;
   background: #FFFFFF;
+  position: relative;
 `;
 
 const Container = styled.div`

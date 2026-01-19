@@ -62,14 +62,17 @@ const DropZone = styled.div`
   margin-bottom: 2rem;
   opacity: ${p => p.$visible ? 1 : 0};
   transform: translateY(${p => p.$visible ? 0 : '30px'});
+  transition: all 0.3s ease, opacity 0.8s ease, transform 0.8s ease;
+  transition-delay: 0.3s;
   
-  &:hover { border-color: #000; }
+  &:hover {
+    border-color: #000;
+  }
 `;
 
 const DropIcon = styled.div`
-  font-size: 3rem;
+  font-size: 3.5rem;
   margin-bottom: 1.5rem;
-  color: #CCC;
 `;
 
 const DropText = styled.p`
@@ -92,7 +95,7 @@ const HiddenInput = styled.input`
 
 const PreviewGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 1rem;
   margin-bottom: 2rem;
 `;
@@ -116,17 +119,35 @@ const RemoveButton = styled.button`
   right: 0.5rem;
   width: 24px;
   height: 24px;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.7);
   border: none;
   border-radius: 50%;
   color: #FFF;
-  font-size: 1rem;
+  font-size: 0.9rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.3s ease;
   
-  &:hover { background: #000; }
+  &:hover {
+    background: #000;
+  }
+`;
+
+const ProgressBar = styled.div`
+  width: 100%;
+  height: 4px;
+  background: #E0E0E0;
+  margin-bottom: 1rem;
+  overflow: hidden;
+`;
+
+const ProgressFill = styled.div`
+  height: 100%;
+  background: #000;
+  width: ${p => p.$progress}%;
+  transition: width 0.3s ease;
 `;
 
 const SubmitButton = styled.button`
@@ -143,19 +164,25 @@ const SubmitButton = styled.button`
   cursor: pointer;
   transition: all 0.3s ease;
   
-  &:hover { background: #333; }
-  &:disabled { background: #CCC; cursor: not-allowed; }
+  &:hover {
+    background: #333;
+  }
+  
+  &:disabled {
+    background: #CCC;
+    cursor: not-allowed;
+  }
 `;
 
 const SuccessMessage = styled.div`
   text-align: center;
-  padding: 3rem;
+  padding: 4rem 2rem;
   background: #FAFAFA;
   border: 1px solid #E0E0E0;
 `;
 
 const SuccessIcon = styled.div`
-  font-size: 3rem;
+  font-size: 4rem;
   margin-bottom: 1.5rem;
 `;
 
@@ -174,10 +201,30 @@ const SuccessText = styled.p`
   margin: 0;
 `;
 
+const ResetButton = styled.button`
+  margin-top: 1.5rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #666;
+  background: none;
+  border: 1px solid #E0E0E0;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    color: #000;
+    border-color: #000;
+  }
+`;
+
 function PhotoUpload({
   title = 'Eure',
-  titleAccent = 'Schnappschüsse',
-  subtitle = 'Teilt eure Fotos mit uns! Ladet hier eure schönsten Momente der Hochzeit hoch.',
+  titleAccent = 'Fotos',
+  subtitle = 'Teilt eure schönsten Schnappschüsse von unserer Hochzeit mit uns!',
   maxFiles = 20,
   acceptedTypes = ['image/jpeg', 'image/png', 'image/webp'],
   onUpload,
@@ -186,6 +233,7 @@ function PhotoUpload({
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const sectionRef = useRef(null);
@@ -200,10 +248,22 @@ function PhotoUpload({
     return () => observer.disconnect();
   }, []);
 
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setDragOver(false);
+  };
+
   const handleDrop = (e) => {
     e.preventDefault();
     setDragOver(false);
-    const droppedFiles = Array.from(e.dataTransfer.files).filter(f => acceptedTypes.includes(f.type));
+    
+    const droppedFiles = Array.from(e.dataTransfer.files).filter(
+      file => acceptedTypes.includes(file.type)
+    );
     addFiles(droppedFiles);
   };
 
@@ -234,9 +294,26 @@ function PhotoUpload({
 
   const handleSubmit = async () => {
     setUploading(true);
-    if (onUpload) await onUpload(files);
+    
+    // Simulate upload progress
+    for (let i = 0; i <= 100; i += 10) {
+      await new Promise(resolve => setTimeout(resolve, 200));
+      setUploadProgress(i);
+    }
+    
+    if (onUpload) {
+      await onUpload(files);
+    }
+    
     setUploading(false);
     setSubmitted(true);
+  };
+
+  const handleReset = () => {
+    setFiles([]);
+    setPreviews([]);
+    setUploadProgress(0);
+    setSubmitted(false);
   };
 
   if (submitted) {
@@ -246,7 +323,10 @@ function PhotoUpload({
           <SuccessMessage>
             <SuccessIcon>📸</SuccessIcon>
             <SuccessTitle>Vielen Dank!</SuccessTitle>
-            <SuccessText>Eure {files.length} Fotos wurden erfolgreich hochgeladen.</SuccessText>
+            <SuccessText>
+              Eure {files.length} {files.length === 1 ? 'Foto wurde' : 'Fotos wurden'} erfolgreich hochgeladen.
+            </SuccessText>
+            <ResetButton onClick={handleReset}>Weitere Fotos hochladen</ResetButton>
           </SuccessMessage>
         </Container>
       </Section>
@@ -257,7 +337,7 @@ function PhotoUpload({
     <Section ref={sectionRef} id="photos">
       <Container>
         <Header>
-          <Eyebrow $visible={visible}>Fotos teilen</Eyebrow>
+          <Eyebrow $visible={visible}>Foto Upload</Eyebrow>
           <Title $visible={visible}>{title} <span>{titleAccent}</span></Title>
           <Subtitle $visible={visible}>{subtitle}</Subtitle>
         </Header>
@@ -265,15 +345,21 @@ function PhotoUpload({
         <DropZone
           $visible={visible}
           $dragOver={dragOver}
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-          onDragLeave={() => setDragOver(false)}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => inputRef.current?.click()}
         >
           <DropIcon>📷</DropIcon>
           <DropText>Fotos hier ablegen oder klicken zum Auswählen</DropText>
           <DropSubtext>Maximal {maxFiles} Fotos · JPG, PNG oder WebP</DropSubtext>
-          <HiddenInput ref={inputRef} type="file" accept={acceptedTypes.join(',')} multiple onChange={handleFileSelect} />
+          <HiddenInput
+            ref={inputRef}
+            type="file"
+            accept={acceptedTypes.join(',')}
+            multiple
+            onChange={handleFileSelect}
+          />
         </DropZone>
         
         {previews.length > 0 && (
@@ -282,13 +368,27 @@ function PhotoUpload({
               {previews.map((item, i) => (
                 <PreviewItem key={i}>
                   <PreviewImage src={item.preview} alt={`Preview ${i + 1}`} />
-                  {!uploading && <RemoveButton onClick={() => removeFile(i)}>×</RemoveButton>}
+                  {!uploading && (
+                    <RemoveButton onClick={() => removeFile(i)}>×</RemoveButton>
+                  )}
                 </PreviewItem>
               ))}
             </PreviewGrid>
             
-            <SubmitButton onClick={handleSubmit} disabled={uploading || files.length === 0}>
-              {uploading ? 'Wird hochgeladen...' : `${files.length} Fotos hochladen`}
+            {uploading && (
+              <ProgressBar>
+                <ProgressFill $progress={uploadProgress} />
+              </ProgressBar>
+            )}
+            
+            <SubmitButton 
+              onClick={handleSubmit} 
+              disabled={uploading || files.length === 0}
+            >
+              {uploading 
+                ? `Wird hochgeladen... ${uploadProgress}%` 
+                : `${files.length} ${files.length === 1 ? 'Foto' : 'Fotos'} hochladen`
+              }
             </SubmitButton>
           </>
         )}

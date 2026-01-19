@@ -5,6 +5,29 @@ const Section = styled.section`
   min-height: 100vh;
   padding: 8rem 2rem 4rem;
   background: #FAFAFA;
+  position: relative;
+`;
+
+const IncludedBadge = styled.div`
+  position: absolute;
+  top: 6rem;
+  right: 2rem;
+  background: #000;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  
+  &::before {
+    content: '✓';
+    font-size: 0.7rem;
+  }
 `;
 
 const Container = styled.div`
@@ -187,7 +210,7 @@ const EmptyText = styled.p`
   color: #999;
 `;
 
-function AdminDashboard({ coupleNames = 'Sarah & Max', rsvpData = [], photos = [], onLogout, onDownloadRSVP }) {
+function AdminDashboard({ coupleNames = 'Sarah & Max', rsvpData = [], photos = [], onLogout, onDownloadRSVP, showBadge = false }) {
   const [activeTab, setActiveTab] = useState('rsvp');
 
   const defaultRsvpData = [
@@ -208,6 +231,7 @@ function AdminDashboard({ coupleNames = 'Sarah & Max', rsvpData = [], photos = [
 
   return (
     <Section>
+      {showBadge && <IncludedBadge>Inklusive</IncludedBadge>}
       <Container>
         <Header>
           <Title>Admin <span>Dashboard</span></Title>

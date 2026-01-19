@@ -4,6 +4,29 @@ import styled from 'styled-components';
 const Section = styled.section`
   padding: 8rem 2rem;
   background: #FFFFFF;
+  position: relative;
+`;
+
+const IncludedBadge = styled.div`
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  background: #000;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  
+  &::before {
+    content: '✓';
+    font-size: 0.7rem;
+  }
 `;
 
 const Container = styled.div`
@@ -167,7 +190,7 @@ const Image = styled.div`
   }
 `;
 
-function LoveStory({ title = 'Unser', titleAccent = 'Weg', milestones = [] }) {
+function LoveStory({ title = 'Unser', titleAccent = 'Weg', milestones = [], showBadge = false }) {
   const [visible, setVisible] = useState(false);
   const [visibleItems, setVisibleItems] = useState([]);
   const [progress, setProgress] = useState(0);
@@ -211,6 +234,7 @@ function LoveStory({ title = 'Unser', titleAccent = 'Weg', milestones = [] }) {
 
   return (
     <Section ref={sectionRef} id="story">
+      {showBadge && <IncludedBadge>Inklusive</IncludedBadge>}
       <Container>
         <Header>
           <Eyebrow $visible={visible}>Unsere Geschichte</Eyebrow>

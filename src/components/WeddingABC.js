@@ -65,26 +65,30 @@ const AlphabetNav = styled.div`
 `;
 
 const LetterButton = styled.button`
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Instrument Serif', serif;
   font-size: 1rem;
-  color: ${p => p.$active ? '#FFF' : '#000'};
+  color: ${p => p.$active ? '#FFF' : p.$hasEntries ? '#000' : '#CCC'};
   background: ${p => p.$active ? '#000' : 'transparent'};
-  border: 1px solid ${p => p.$active ? '#000' : '#E0E0E0'};
-  cursor: pointer;
+  border: 1px solid ${p => p.$active ? '#000' : p.$hasEntries ? '#E0E0E0' : '#F0F0F0'};
+  cursor: ${p => p.$hasEntries ? 'pointer' : 'default'};
   transition: all 0.3s ease;
   
-  &:hover { border-color: #000; background: ${p => p.$active ? '#000' : '#F5F5F5'}; }
-  &:disabled { color: #CCC; border-color: #F0F0F0; cursor: not-allowed; &:hover { background: transparent; } }
+  &:hover {
+    ${p => p.$hasEntries && !p.$active && `
+      border-color: #000;
+      background: #F5F5F5;
+    `}
+  }
 `;
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
 `;
 
@@ -100,7 +104,7 @@ const Card = styled.div`
 
 const CardLetter = styled.div`
   font-family: 'Instrument Serif', serif;
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-style: italic;
   color: #E0E0E0;
   line-height: 1;
@@ -135,7 +139,12 @@ const EmptyText = styled.p`
   color: #999;
 `;
 
-function WeddingABC({ title = 'Hochzeits', titleAccent = 'ABC', subtitle = 'Alles Wissenswerte von A bis Z', entries = [] }) {
+function WeddingABC({
+  title = 'Hochzeits',
+  titleAccent = 'ABC',
+  subtitle = 'Alles Wissenswerte von A bis Z',
+  entries = [],
+}) {
   const [visible, setVisible] = useState(false);
   const [activeLetter, setActiveLetter] = useState(null);
   const sectionRef = useRef(null);
@@ -145,18 +154,24 @@ function WeddingABC({ title = 'Hochzeits', titleAccent = 'ABC', subtitle = 'Alle
     { letter: 'B', title: 'Blumen', text: 'Unser Farbkonzept ist Weiß und Grün. Wer uns mit Blumen überraschen möchte, kann sich daran orientieren.' },
     { letter: 'D', title: 'Dresscode', text: 'Elegante Abendgarderobe. Die Herren im Anzug, die Damen im Cocktail- oder Abendkleid.' },
     { letter: 'F', title: 'Fotos', text: 'Während der Trauung verzichtet bitte auf eigene Fotos. Bei der Feier dürft ihr gerne knipsen!' },
-    { letter: 'G', title: 'Geschenke', text: 'Das größte Geschenk ist eure Anwesenheit. Wer uns dennoch etwas schenken möchte, findet Infos unter Geschenke.' },
-    { letter: 'K', title: 'Kinder', text: 'Wir haben uns für eine Feier nur für Erwachsene entschieden.' },
-    { letter: 'P', title: 'Parken', text: 'Kostenlose Parkplätze sind direkt an der Location vorhanden.' },
-    { letter: 'T', title: 'Taxi', text: 'Am Ende der Feier werden wir Taxis organisieren. Bitte gebt bei der Anmeldung an, ob ihr eines benötigt.' },
+    { letter: 'G', title: 'Geschenke', text: 'Das größte Geschenk ist eure Anwesenheit. Infos zu unserer Wunschliste findet ihr unter "Geschenke".' },
+    { letter: 'H', title: 'Hochzeitstorte', text: 'Die Torte wird gegen 22 Uhr angeschnitten. Ein süßes Highlight, das ihr nicht verpassen solltet!' },
+    { letter: 'K', title: 'Kinder', text: 'Wir haben uns für eine Feier nur für Erwachsene entschieden. Wir hoffen auf euer Verständnis.' },
+    { letter: 'M', title: 'Musik', text: 'Habt ihr einen Song, der euch auf die Tanzfläche bringt? Verratet ihn uns unter "Musikwünsche"!' },
+    { letter: 'P', title: 'Parken', text: 'Kostenlose Parkplätze sind direkt an der Location vorhanden. Bitte folgt der Beschilderung.' },
+    { letter: 'R', title: 'Reden', text: 'Möchtet ihr eine Rede halten? Meldet euch bitte bei unseren Trauzeugen, damit wir planen können.' },
+    { letter: 'S', title: 'Sektempfang', text: 'Nach der Trauung gibt es einen Sektempfang auf der Terrasse. Stoßt mit uns an!' },
+    { letter: 'T', title: 'Taxi', text: 'Am Ende der Feier können wir Taxis organisieren. Gebt bei der Anmeldung an, ob ihr eines benötigt.' },
     { letter: 'U', title: 'Übernachtung', text: 'Wir haben Zimmer im Hotel Schlossblick reserviert. Stichwort: Hochzeit Sarah & Max.' },
-    { letter: 'W', title: 'Wetter', text: 'Plan A ist draußen, Plan B drinnen. Wir sind auf alles vorbereitet!' },
+    { letter: 'W', title: 'Wetter', text: 'Plan A ist draußen, Plan B drinnen. Wir sind auf alles vorbereitet – ihr auch?' },
   ];
 
   const items = entries.length > 0 ? entries : defaultEntries;
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   const availableLetters = [...new Set(items.map(e => e.letter.toUpperCase()))];
-  const filteredItems = activeLetter ? items.filter(e => e.letter.toUpperCase() === activeLetter) : items;
+  const filteredItems = activeLetter 
+    ? items.filter(e => e.letter.toUpperCase() === activeLetter) 
+    : items;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -167,19 +182,35 @@ function WeddingABC({ title = 'Hochzeits', titleAccent = 'ABC', subtitle = 'Alle
     return () => observer.disconnect();
   }, []);
 
+  const handleLetterClick = (letter) => {
+    if (!availableLetters.includes(letter)) return;
+    setActiveLetter(activeLetter === letter ? null : letter);
+  };
+
   return (
     <Section ref={sectionRef} id="abc">
       <Container>
         <Header>
-          <Eyebrow $visible={visible}>Infos</Eyebrow>
+          <Eyebrow $visible={visible}>Von A bis Z</Eyebrow>
           <Title $visible={visible}>{title}<span>{titleAccent}</span></Title>
           <Subtitle $visible={visible}>{subtitle}</Subtitle>
         </Header>
         
         <AlphabetNav $visible={visible}>
-          <LetterButton $active={activeLetter === null} onClick={() => setActiveLetter(null)}>Alle</LetterButton>
+          <LetterButton 
+            $active={activeLetter === null} 
+            $hasEntries={true}
+            onClick={() => setActiveLetter(null)}
+          >
+            ★
+          </LetterButton>
           {alphabet.map(letter => (
-            <LetterButton key={letter} $active={activeLetter === letter} disabled={!availableLetters.includes(letter)} onClick={() => setActiveLetter(letter)}>
+            <LetterButton 
+              key={letter} 
+              $active={activeLetter === letter}
+              $hasEntries={availableLetters.includes(letter)}
+              onClick={() => handleLetterClick(letter)}
+            >
               {letter}
             </LetterButton>
           ))}
@@ -195,7 +226,9 @@ function WeddingABC({ title = 'Hochzeits', titleAccent = 'ABC', subtitle = 'Alle
               </Card>
             ))
           ) : (
-            <EmptyState><EmptyText>Keine Einträge für diesen Buchstaben.</EmptyText></EmptyState>
+            <EmptyState>
+              <EmptyText>Keine Einträge für diesen Buchstaben.</EmptyText>
+            </EmptyState>
           )}
         </Grid>
       </Container>

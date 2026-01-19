@@ -4,6 +4,29 @@ import styled from 'styled-components';
 const Section = styled.section`
   padding: 8rem 2rem;
   background: #FAFAFA;
+  position: relative;
+`;
+
+const IncludedBadge = styled.div`
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  background: #000;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  
+  &::before {
+    content: '✓';
+    font-size: 0.7rem;
+  }
 `;
 
 const Container = styled.div`
@@ -118,6 +141,7 @@ const TextArea = styled.textarea`
 const RadioGroup = styled.div`
   display: flex;
   gap: 2rem;
+  flex-wrap: wrap;
 `;
 
 const RadioLabel = styled.label`
@@ -219,6 +243,7 @@ function RSVP({
   subtitle = 'Bitte lasst uns bis zum 15. Juni wissen, ob ihr kommen könnt.',
   menuOptions = ['Fleisch', 'Fisch', 'Vegetarisch', 'Vegan'],
   onSubmit,
+  showBadge = false,
 }) {
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -256,6 +281,7 @@ function RSVP({
   if (submitted) {
     return (
       <Section ref={sectionRef} id="rsvp">
+        {showBadge && <IncludedBadge>Inklusive</IncludedBadge>}
         <Container>
           <SuccessMessage>
             <SuccessIcon>{attending === 'yes' ? '🎉' : '💝'}</SuccessIcon>
@@ -273,6 +299,7 @@ function RSVP({
 
   return (
     <Section ref={sectionRef} id="rsvp">
+      {showBadge && <IncludedBadge>Inklusive</IncludedBadge>}
       <Container>
         <Header>
           <Eyebrow $visible={visible}>RSVP</Eyebrow>

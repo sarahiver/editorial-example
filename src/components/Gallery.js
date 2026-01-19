@@ -148,15 +148,7 @@ function Gallery({ title = 'Unsere', titleAccent = 'Momente', images = [] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const sectionRef = useRef(null);
 
-  const defaultImages = [
-    { src: null, alt: 'Bild 1' },
-    { src: null, alt: 'Bild 2' },
-    { src: null, alt: 'Bild 3' },
-    { src: null, alt: 'Bild 4' },
-    { src: null, alt: 'Bild 5' },
-    { src: null, alt: 'Bild 6' },
-  ];
-
+  const defaultImages = Array(6).fill(null).map((_, i) => ({ src: null, alt: `Bild ${i + 1}` }));
   const galleryImages = images.length > 0 ? images : defaultImages;
 
   useEffect(() => {
