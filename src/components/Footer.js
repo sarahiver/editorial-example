@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const FooterSection = styled.footer`
@@ -254,49 +254,29 @@ const ErrorMessage = styled.p`
 `;
 
 function Footer({
-  coupleNames = 'Sarah & Max',
-  tagline = 'Wir freuen uns, diesen besonderen Tag mit euch zu teilen.',
+  coupleNames = 'Pauli & Mo',
+  tagline = "We're so excited to share this special day with you.",
   links = [],
   quickLinks = [],
-  onLogin,
-  adminEmail = 'admin',
-  adminPassword = 'password',
   showBadge = false,
 }) {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-
   const defaultLinks = [
-    { label: 'Unser Weg', href: '#story' },
-    { label: 'Hochzeit', href: '#location' },
-    { label: 'Ablauf', href: '#timeline' },
+    { label: 'Our Story', href: '#story' },
+    { label: 'Wedding', href: '#location' },
+    { label: 'Schedule', href: '#timeline' },
   ];
 
   const defaultQuickLinks = [
     { label: 'RSVP', href: '#rsvp' },
-    { label: 'Galerie', href: '#gallery' },
+    { label: 'Gallery', href: '#gallery' },
     { label: 'FAQ', href: '#faq' },
   ];
 
   const navLinks = links.length > 0 ? links : defaultLinks;
   const quickNavLinks = quickLinks.length > 0 ? quickLinks : defaultQuickLinks;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError('');
-    
-    if (email === adminEmail && password === adminPassword) {
-      if (onLogin) {
-        onLogin(email, password);
-      }
-      setModalOpen(false);
-      setEmail('');
-      setPassword('');
-    } else {
-      setError('Ungültige Anmeldedaten');
-    }
+  const handleAdminClick = () => {
+    window.location.href = '/admin';
   };
 
   const year = new Date().getFullYear();
@@ -305,7 +285,7 @@ function Footer({
 
   return (
     <FooterSection>
-      {showBadge && <IncludedBadge>Inklusive</IncludedBadge>}
+      {showBadge && <IncludedBadge>Included</IncludedBadge>}
       
       <Container>
         <Grid>
@@ -342,45 +322,10 @@ function Footer({
         <Divider />
         
         <Bottom>
-          <Copyright>© {year} {coupleNames}. Mit Liebe gemacht.</Copyright>
-          <AdminLink onClick={() => setModalOpen(true)}>Admin</AdminLink>
+          <Copyright>© {year} {coupleNames}. Made with love.</Copyright>
+          <AdminLink onClick={handleAdminClick}>Admin</AdminLink>
         </Bottom>
       </Container>
-      
-      <Modal $open={modalOpen} onClick={() => setModalOpen(false)}>
-        <ModalContent onClick={e => e.stopPropagation()}>
-          <ModalClose onClick={() => setModalOpen(false)}>×</ModalClose>
-          <ModalTitle>Admin Login</ModalTitle>
-          
-          <form onSubmit={handleSubmit}>
-            <FormGroup>
-              <Label>E-Mail</Label>
-              <Input
-                type="text"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="admin@email.de"
-                required
-              />
-            </FormGroup>
-            
-            <FormGroup>
-              <Label>Passwort</Label>
-              <Input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-              />
-            </FormGroup>
-            
-            <SubmitButton type="submit">Anmelden</SubmitButton>
-            
-            {error && <ErrorMessage>{error}</ErrorMessage>}
-          </form>
-        </ModalContent>
-      </Modal>
     </FooterSection>
   );
 }

@@ -174,7 +174,7 @@ function FAQ({
     },
     {
       question: 'Gibt es Übernachtungsmöglichkeiten?',
-      answer: 'In der Nähe gibt es mehrere Hotels. Wir haben ein Zimmerkontingent im Hotel Schlossblick reserviert. Nennt bei der Buchung das Stichwort "Hochzeit Sarah & Max".',
+      answer: 'In der Nähe gibt es mehrere Hotels. Wir haben ein Zimmerkontingent im Hotel Schlossblick reserviert. Nennt bei der Buchung das Stichwort "Hochzeit Pauli & Mo".',
     },
     {
       question: 'Darf ich während der Trauung fotografieren?',

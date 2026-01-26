@@ -176,7 +176,7 @@ function Accommodations({
   titleAccent = 'künfte',
   subtitle = 'Wir haben für euch einige Hotels in der Nähe der Location zusammengestellt.',
   accommodations = [],
-  bookingCode = 'Hochzeit Sarah & Max',
+  bookingCode = 'Hochzeit Pauli & Mo',
 }) {
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);

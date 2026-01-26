@@ -201,7 +201,7 @@ function LoveStory({ title = 'Unser', titleAccent = 'Weg', milestones = [], show
     { year: '2018', title: 'Das erste Treffen', text: 'Bei einem gemeinsamen Freund haben wir uns zum ersten Mal getroffen. Es hat sofort gefunkt.', image: null },
     { year: '2019', title: 'Der erste Urlaub', text: 'Unsere erste gemeinsame Reise führte uns nach Italien. Unvergessliche Momente am Meer.', image: null },
     { year: '2021', title: 'Zusammenziehen', text: 'Wir haben uns entschieden, den nächsten Schritt zu wagen und zusammenzuziehen.', image: null },
-    { year: '2024', title: 'Der Antrag', text: 'An einem romantischen Abend in Paris hat Max die Frage aller Fragen gestellt.', image: null },
+    { year: '2024', title: 'Der Antrag', text: 'An einem romantischen Abend in Paris hat Mo die Frage aller Fragen gestellt.', image: null },
   ];
 
   const items = milestones.length > 0 ? milestones : defaultMilestones;

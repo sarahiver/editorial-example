@@ -162,7 +162,7 @@ function WeddingABC({
     { letter: 'R', title: 'Reden', text: 'Möchtet ihr eine Rede halten? Meldet euch bitte bei unseren Trauzeugen, damit wir planen können.' },
     { letter: 'S', title: 'Sektempfang', text: 'Nach der Trauung gibt es einen Sektempfang auf der Terrasse. Stoßt mit uns an!' },
     { letter: 'T', title: 'Taxi', text: 'Am Ende der Feier können wir Taxis organisieren. Gebt bei der Anmeldung an, ob ihr eines benötigt.' },
-    { letter: 'U', title: 'Übernachtung', text: 'Wir haben Zimmer im Hotel Schlossblick reserviert. Stichwort: Hochzeit Sarah & Max.' },
+    { letter: 'U', title: 'Übernachtung', text: 'Wir haben Zimmer im Hotel Schlossblick reserviert. Stichwort: Hochzeit Pauli & Mo.' },
     { letter: 'W', title: 'Wetter', text: 'Plan A ist draußen, Plan B drinnen. Wir sind auf alles vorbereitet – ihr auch?' },
   ];
 

@@ -167,7 +167,7 @@ const MenuButton = styled.button`
 `
 
 function Navigation({
-  coupleNames = "Sarah & Max",
+  coupleNames = "Pauli & Mo",
   weddingDate = "15.08.2025",
   links = [],
   showBadge = false,

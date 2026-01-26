@@ -201,8 +201,8 @@ const ScrollLine = styled.div`
 `;
 
 function Hero({
-  name1 = 'Sarah',
-  name2 = 'Max',
+  name1 = 'Pauli',
+  name2 = 'Mo',
   date = '15. August 2025',
   location = 'Schloss Heidelberg',
   eyebrow = 'Wir heiraten',
