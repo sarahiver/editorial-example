@@ -1,226 +1,180 @@
-// src/components/AdminDashboard.js - Neon Theme
-// Vollständiges Admin Dashboard
+// src/components/AdminDashboard.js - Editorial Theme
 import React, { useState, useEffect, useRef } from 'react';
-import styled, { keyframes, css } from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 
-const pulse = keyframes`
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 `;
 
-const glitch = keyframes`
-  0%, 100% { transform: translate(0); }
-  20% { transform: translate(-2px, 2px); }
-  40% { transform: translate(-2px, -2px); }
-  60% { transform: translate(2px, 2px); }
-  80% { transform: translate(2px, -2px); }
-`;
+// ============================================
+// LOGIN SCREEN - Editorial Style
+// ============================================
 
-// Login Screen Styles
 const LoginContainer = styled.div`
   min-height: 100vh;
-  background: #FAFAFA;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #FAFAFA;
   position: relative;
   
   &::before {
     content: '';
-    position: fixed;
+    position: absolute;
     inset: 0;
     background-image: 
-      linear-gradient(rgba(0,255,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,255,0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
+      linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
     pointer-events: none;
   }
 `;
 
 const LoginBox = styled.div`
-  background: rgba(0,0,0,0.5);
-  border: 1px solid rgba(0,255,255,0.3);
-  width: 100%;
-  max-width: 400px;
-  margin: 20px;
+  background: #FFF;
+  border: 1px solid #E0E0E0;
+  max-width: 420px;
+  width: 90%;
+  padding: 3rem;
   position: relative;
   z-index: 1;
-`;
-
-const LoginHeader = styled.div`
-  background: rgba(0,255,255,0.1);
-  padding: 15px 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border-bottom: 1px solid rgba(0,255,255,0.2);
-`;
-
-const LoginDot = styled.span`
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: ${p => p.$color};
-`;
-
-const LoginTitle = styled.span`
-  color: rgba(255,255,255,0.6);
-  font-family: 'Inter', monospace;
-  font-size: 0.8rem;
-  margin-left: 10px;
-`;
-
-const LoginBody = styled.div`
-  padding: 40px 30px;
+  animation: ${fadeIn} 0.6s ease;
 `;
 
 const LoginLogo = styled.div`
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 2.5rem;
   
   h1 {
-    font-family: 'Inter', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #000000;
-    text-shadow: 0 0 20px rgba(0,255,255,0.5);
-    margin-bottom: 5px;
+    font-family: 'Instrument Serif', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    color: #000;
+    margin-bottom: 0.5rem;
+    
+    span { font-style: italic; }
   }
   
   p {
-    font-family: 'Inter', monospace;
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.4);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: #999;
   }
 `;
 
 const LoginForm = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.5rem;
 `;
 
-const LoginField = styled.div`
-  label {
-    display: block;
-    font-family: 'Inter', monospace;
-    font-size: 0.8rem;
-    color: #2E7D32;
-    margin-bottom: 8px;
-    
-    &::before {
-      content: '$ ';
-      color: #000000;
-    }
+const FormGroup = styled.div``;
+
+const Label = styled.label`
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #000;
+  margin-bottom: 0.5rem;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 1rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #000;
+  background: #FAFAFA;
+  border: 1px solid #E0E0E0;
+  transition: all 0.3s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: #000;
+    background: #FFF;
   }
   
-  input {
-    width: 100%;
-    padding: 12px 15px;
-    background: rgba(0,0,0,0.5);
-    border: 1px solid rgba(0,255,255,0.3);
-    color: #fff;
-    font-family: 'Inter', monospace;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    
-    &::placeholder {
-      color: rgba(255,255,255,0.3);
-    }
-    
-    &:focus {
-      outline: none;
-      border-color: #000000;
-      box-shadow: 0 0 15px rgba(0,255,255,0.3);
-    }
+  &::placeholder {
+    color: #CCC;
   }
 `;
 
-const LoginSubmit = styled.button`
+const LoginButton = styled.button`
   width: 100%;
-  padding: 15px;
-  background: transparent;
-  border: 1px solid #000000;
-  color: #000000;
+  padding: 1.25rem;
   font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  color: #FFF;
+  background: #000;
+  border: none;
+  cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 10px;
+  margin-top: 0.5rem;
   
   &:hover {
-    background: #000000;
-    color: #FAFAFA;
-    box-shadow: 0 0 30px rgba(0,255,255,0.5);
+    background: #333;
   }
 `;
 
-const LoginError = styled.div`
-  background: rgba(255,0,255,0.1);
-  border: 1px solid #666666;
-  padding: 12px 15px;
-  font-family: 'Inter', monospace;
-  font-size: 0.8rem;
-  color: #666666;
-  animation: ${glitch} 0.3s ease;
-  
-  &::before {
-    content: '[ERROR] ';
-  }
-`;
-
-const LoginBackLink = styled.a`
-  display: block;
-  text-align: center;
-  margin-top: 20px;
+const LoginError = styled.p`
   font-family: 'Inter', sans-serif;
   font-size: 0.85rem;
-  color: rgba(255,255,255,0.4);
-  cursor: pointer;
+  color: #C62828;
+  text-align: center;
+  padding: 1rem;
+  background: #FFEBEE;
+  border: 1px solid #FFCDD2;
+`;
+
+const BackLink = styled.a`
+  display: block;
+  text-align: center;
+  margin-top: 2rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  color: #999;
+  text-decoration: none;
   transition: color 0.3s ease;
+  cursor: pointer;
   
   &:hover {
-    color: #000000;
+    color: #000;
   }
 `;
 
-const Container = styled.div`
+// ============================================
+// DASHBOARD LAYOUT - Editorial Style
+// ============================================
+
+const DashboardContainer = styled.div`
   min-height: 100vh;
-  background: #FAFAFA;
   display: flex;
-  
-  &::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: 
-      linear-gradient(rgba(0,255,255,0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,255,0.02) 1px, transparent 1px);
-    background-size: 30px 30px;
-    pointer-events: none;
-    z-index: 0;
-  }
+  background: #FAFAFA;
 `;
 
 const Sidebar = styled.aside`
-  width: 280px;
-  background: rgba(0,0,0,0.95);
-  border-right: 1px solid rgba(0,255,255,0.2);
-  padding: 30px 0;
+  width: 260px;
+  background: #FFF;
+  border-right: 1px solid #E0E0E0;
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
-  z-index: 1000;
+  padding: 2rem 0;
   overflow-y: auto;
+  z-index: 100;
   
   @media (max-width: 968px) {
     transform: translateX(${p => p.$open ? '0' : '-100%'});
     transition: transform 0.3s ease;
-    box-shadow: ${p => p.$open ? '0 0 50px rgba(0,0,0,0.8)' : 'none'};
+    box-shadow: ${p => p.$open ? '10px 0 30px rgba(0,0,0,0.1)' : 'none'};
   }
 `;
 
@@ -231,430 +185,463 @@ const SidebarBackdrop = styled.div`
     display: ${p => p.$open ? 'block' : 'none'};
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 999;
+    background: rgba(0,0,0,0.3);
+    z-index: 99;
   }
 `;
 
 const SidebarHeader = styled.div`
-  padding: 0 25px 30px;
-  border-bottom: 1px solid rgba(0,255,255,0.1);
-  margin-bottom: 20px;
+  padding: 0 1.5rem 2rem;
+  border-bottom: 1px solid #F0F0F0;
+  margin-bottom: 1.5rem;
 `;
 
-const Logo = styled.div`
+const SidebarLogo = styled.div`
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.25rem;
+  color: #000;
+  
+  span { font-style: italic; }
+`;
+
+const SidebarSub = styled.p`
   font-family: 'Inter', sans-serif;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #000000;
-  text-shadow: 0 0 10px rgba(0,255,255,0.5);
-  margin-bottom: 5px;
-`;
-
-const LogoSub = styled.div`
-  font-family: 'Inter', monospace;
-  font-size: 0.7rem;
-  color: rgba(255,255,255,0.4);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #999;
+  margin-top: 0.25rem;
 `;
 
 const NavItem = styled.button`
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 15px 25px;
-  background: ${p => p.$active ? 'rgba(0,255,255,0.1)' : 'transparent'};
-  border: none;
-  border-left: 3px solid ${p => p.$active ? '#000000' : 'transparent'};
-  color: ${p => p.$active ? '#000000' : 'rgba(255,255,255,0.6)'};
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
   font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  color: ${p => p.$active ? '#000' : '#666'};
+  background: ${p => p.$active ? '#FAFAFA' : 'transparent'};
+  border: none;
+  border-left: 2px solid ${p => p.$active ? '#000' : 'transparent'};
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   text-align: left;
   
   &:hover {
-    background: rgba(0,255,255,0.05);
-    color: #000000;
+    color: #000;
+    background: #FAFAFA;
   }
   
-  svg { width: 20px; height: 20px; flex-shrink: 0; }
+  svg {
+    width: 18px;
+    height: 18px;
+    opacity: ${p => p.$active ? 1 : 0.5};
+  }
 `;
 
 const NavBadge = styled.span`
   margin-left: auto;
-  font-size: 0.75rem;
-  padding: 3px 8px;
-  background: ${p => p.$color || '#666666'};
-  color: #000;
+  font-size: 0.6rem;
   font-weight: 600;
+  padding: 0.15rem 0.4rem;
+  background: ${p => p.$color || '#000'};
+  color: #FFF;
 `;
 
 const NavDivider = styled.div`
   height: 1px;
-  background: rgba(0,255,255,0.1);
-  margin: 20px 25px;
+  background: #F0F0F0;
+  margin: 1rem 1.5rem;
 `;
 
 const Main = styled.main`
   flex: 1;
-  margin-left: 280px;
-  padding: 40px;
-  position: relative;
-  z-index: 1;
+  margin-left: 260px;
+  padding: 2rem;
   
   @media (max-width: 968px) {
     margin-left: 0;
-    padding: 80px 20px 20px;
-  }
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 40px;
-  flex-wrap: wrap;
-  gap: 20px;
-`;
-
-const Title = styled.h1`
-  font-family: 'Inter', sans-serif;
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 8px;
-  
-  span {
-    color: #000000;
-    text-shadow: 0 0 20px rgba(0,255,255,0.5);
-  }
-`;
-
-const Subtitle = styled.p`
-  font-family: 'Inter', monospace;
-  font-size: 0.85rem;
-  color: #2E7D32;
-  
-  .blink { animation: ${pulse} 1s ease-in-out infinite; }
-`;
-
-const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 20px;
-  margin-bottom: 40px;
-`;
-
-const StatCard = styled.div`
-  background: rgba(255,255,255,0.02);
-  border: 1px solid ${p => p.$color}40;
-  padding: 25px;
-  position: relative;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 4px; height: 100%;
-    background: ${p => p.$color};
-    box-shadow: 0 0 20px ${p => p.$color};
-  }
-`;
-
-const StatLabel = styled.div`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.5);
-  margin-bottom: 10px;
-`;
-
-const StatValue = styled.div`
-  font-family: 'Inter', sans-serif;
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: ${p => p.$color};
-  text-shadow: 0 0 20px ${p => p.$color}50;
-  line-height: 1;
-`;
-
-const Panel = styled.div`
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(0,255,255,0.2);
-  margin-bottom: 30px;
-  overflow: hidden;
-`;
-
-const PanelHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 15px 20px;
-  background: rgba(0,255,255,0.05);
-  border-bottom: 1px solid rgba(0,255,255,0.2);
-`;
-
-const Dot = styled.span`
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  background: ${p => p.$color};
-`;
-
-const PanelTitle = styled.h3`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #fff;
-  flex: 1;
-`;
-
-const PanelContent = styled.div`
-  padding: 20px;
-  max-height: ${p => p.$maxHeight || 'none'};
-  overflow-y: ${p => p.$maxHeight ? 'auto' : 'visible'};
-`;
-
-const TableWrapper = styled.div`
-  overflow-x: auto;
-`;
-
-const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 600px;
-`;
-
-const Th = styled.th`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.4);
-  text-align: left;
-  padding: 12px 15px;
-  border-bottom: 1px solid rgba(0,255,255,0.1);
-`;
-
-const Td = styled.td`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  color: #fff;
-  padding: 12px 15px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-`;
-
-const StatusBadge = styled.span`
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 5px 10px;
-  background: ${p => p.$status === 'confirmed' ? 'rgba(0,255,136,0.2)' : p.$status === 'pending' ? 'rgba(255,189,46,0.2)' : 'rgba(255,0,255,0.2)'};
-  color: ${p => p.$status === 'confirmed' ? '#2E7D32' : p.$status === 'pending' ? '#ffbd2e' : '#666666'};
-  text-transform: uppercase;
-`;
-
-const Button = styled.button`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: ${p => p.$size === 'small' ? '8px 15px' : '12px 25px'};
-  background: ${p => p.$variant === 'primary' ? '#000000' : 'transparent'};
-  border: 1px solid ${p => p.$variant === 'danger' ? '#666666' : '#000000'};
-  color: ${p => p.$variant === 'primary' ? '#FAFAFA' : p.$variant === 'danger' ? '#666666' : '#000000'};
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  
-  &:hover {
-    box-shadow: 0 0 20px ${p => p.$variant === 'danger' ? 'rgba(255,0,255,0.4)' : 'rgba(0,255,255,0.4)'};
-    transform: translateY(-2px);
-  }
-`;
-
-const ToggleWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 15px;
-`;
-
-const Toggle = styled.button`
-  width: 60px; height: 30px;
-  background: ${p => p.$active ? 'rgba(0,255,136,0.3)' : 'rgba(255,255,255,0.1)'};
-  border: 1px solid ${p => p.$active ? '#2E7D32' : 'rgba(255,255,255,0.2)'};
-  border-radius: 15px;
-  position: relative;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 3px;
-    left: ${p => p.$active ? '32px' : '3px'};
-    width: 22px; height: 22px;
-    background: ${p => p.$active ? '#2E7D32' : 'rgba(255,255,255,0.5)'};
-    border-radius: 50%;
-    transition: all 0.3s ease;
-    box-shadow: ${p => p.$active ? '0 0 10px #2E7D32' : 'none'};
-  }
-`;
-
-const ToggleLabel = styled.span`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: ${p => p.$active ? '#2E7D32' : 'rgba(255,255,255,0.6)'};
-`;
-
-const UploadArea = styled.div`
-  border: 2px dashed rgba(0,255,255,0.3);
-  padding: 40px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    border-color: #000000;
-    background: rgba(0,255,255,0.05);
-  }
-`;
-
-const ImageGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 15px;
-  margin-top: 20px;
-`;
-
-const ImageCard = styled.div`
-  position: relative;
-  aspect-ratio: 1;
-  overflow: hidden;
-  border: 1px solid rgba(0,255,255,0.2);
-  
-  img { width: 100%; height: 100%; object-fit: cover; }
-  
-  &:hover .overlay { opacity: 1; }
-`;
-
-const ImageOverlay = styled.div`
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-`;
-
-const IconButton = styled.button`
-  width: 40px; height: 40px;
-  background: rgba(0,255,255,0.2);
-  border: 1px solid #000000;
-  color: #000000;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &:hover { background: #000000; color: #FAFAFA; }
-`;
-
-const EntryCard = styled.div`
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(0,255,255,0.1);
-  padding: 20px;
-  margin-bottom: 15px;
-`;
-
-const EntryHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-`;
-
-const EntryName = styled.div`
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #000000;
-`;
-
-const EntryDate = styled.div`
-  font-family: 'Inter', monospace;
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.4);
-`;
-
-const EntryContent = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.7);
-  line-height: 1.6;
-`;
-
-const SearchInput = styled.input`
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(0,255,255,0.3);
-  padding: 10px 15px;
-  color: #fff;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  width: 250px;
-  
-  &::placeholder { color: rgba(255,255,255,0.3); }
-  &:focus { outline: none; border-color: #000000; }
-`;
-
-const AlertBox = styled.div`
-  background: ${p => p.$type === 'success' ? 'rgba(0,255,136,0.1)' : p.$type === 'warning' ? 'rgba(255,189,46,0.1)' : 'rgba(255,0,255,0.1)'};
-  border: 1px solid ${p => p.$type === 'success' ? '#2E7D32' : p.$type === 'warning' ? '#ffbd2e' : '#666666'};
-  padding: 15px 20px;
-  margin-bottom: 20px;
-  
-  span {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.9rem;
-    color: ${p => p.$type === 'success' ? '#2E7D32' : p.$type === 'warning' ? '#ffbd2e' : '#666666'};
+    padding: 1.5rem;
   }
 `;
 
 const MobileMenuToggle = styled.button`
   display: none;
   position: fixed;
-  top: 20px; left: 20px;
-  z-index: 1001;
-  width: 50px; height: 50px;
-  background: rgba(10,10,15,0.9);
-  border: 1px solid #000000;
-  color: #000000;
+  top: 1rem;
+  left: 1rem;
+  z-index: 101;
+  width: 44px;
+  height: 44px;
+  background: #FFF;
+  border: 1px solid #E0E0E0;
   cursor: pointer;
-  box-shadow: 0 0 20px rgba(0,255,255,0.3);
+  align-items: center;
+  justify-content: center;
   
   @media (max-width: 968px) {
     display: flex;
-    align-items: center;
-    justify-content: center;
   }
   
-  &:hover {
-    background: #000000;
-    color: #FAFAFA;
+  svg {
+    width: 20px;
+    height: 20px;
   }
 `;
 
-const HeaderActions = styled.div`
+const Header = styled.header`
   display: flex;
-  gap: 15px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  gap: 1rem;
+  
+  @media (max-width: 968px) {
+    margin-top: 3rem;
+  }
+`;
+
+const PageTitle = styled.h1`
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 400;
+  color: #000;
+  
+  span { font-style: italic; }
+`;
+
+const HeaderTime = styled.p`
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: #999;
+`;
+
+// ============================================
+// DASHBOARD COMPONENTS - Editorial Style
+// ============================================
+
+const StatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+`;
+
+const StatCard = styled.div`
+  background: #FFF;
+  padding: 1.5rem;
+  border: 1px solid #E0E0E0;
+`;
+
+const StatNumber = styled.div`
+  font-family: 'Instrument Serif', serif;
+  font-size: 2.5rem;
+  color: #000;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+`;
+
+const StatLabel = styled.div`
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #999;
+`;
+
+const Panel = styled.div`
+  background: #FFF;
+  border: 1px solid #E0E0E0;
+  margin-bottom: 1.5rem;
+`;
+
+const PanelHeader = styled.div`
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #F0F0F0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const PanelTitle = styled.h3`
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #000;
+`;
+
+const PanelContent = styled.div`
+  padding: 1.5rem;
+  max-height: ${p => p.$maxHeight || 'none'};
+  overflow-y: ${p => p.$maxHeight ? 'auto' : 'visible'};
+`;
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+`;
+
+const Th = styled.th`
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #999;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #F0F0F0;
+  white-space: nowrap;
+`;
+
+const Td = styled.td`
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: #333;
+  padding: 1rem;
+  border-bottom: 1px solid #F5F5F5;
+`;
+
+const StatusBadge = styled.span`
+  display: inline-block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.6rem;
+  background: ${p => p.$status === 'confirmed' ? '#E8F5E9' : p.$status === 'declined' ? '#FFEBEE' : '#FFF8E1'};
+  color: ${p => p.$status === 'confirmed' ? '#2E7D32' : p.$status === 'declined' ? '#C62828' : '#F57F17'};
+`;
+
+const Button = styled.button`
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: ${p => p.$variant === 'danger' ? '#FFF' : '#FFF'};
+  background: ${p => p.$variant === 'danger' ? '#C62828' : '#000'};
+  border: none;
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &:hover {
+    background: ${p => p.$variant === 'danger' ? '#B71C1C' : '#333'};
+  }
+`;
+
+const SearchInput = styled.input`
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #E0E0E0;
+  background: #FFF;
+  width: 250px;
+  
+  &:focus {
+    outline: none;
+    border-color: #000;
+  }
+  
+  &::placeholder {
+    color: #CCC;
+  }
+`;
+
+const ToggleSwitch = styled.label`
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+  
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  span {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #E0E0E0;
+    transition: 0.3s;
+    
+    &::before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background: #FFF;
+      transition: 0.3s;
+    }
+  }
+  
+  input:checked + span {
+    background: #000;
+  }
+  
+  input:checked + span::before {
+    transform: translateX(24px);
+  }
+`;
+
+const AlertBox = styled.div`
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid ${p => p.$type === 'success' ? '#C8E6C9' : p.$type === 'warning' ? '#FFE082' : '#FFCDD2'};
+  background: ${p => p.$type === 'success' ? '#E8F5E9' : p.$type === 'warning' ? '#FFF8E1' : '#FFEBEE'};
+  
+  p {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: ${p => p.$type === 'success' ? '#2E7D32' : p.$type === 'warning' ? '#F57F17' : '#C62828'};
+  }
+`;
+
+const ImageGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+`;
+
+const ImageCard = styled.div`
+  aspect-ratio: 1;
+  background: #F5F5F5;
+  border: 1px solid #E0E0E0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  &::after {
+    content: 'Photo';
+    font-family: 'Inter', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #CCC;
+    position: absolute;
+  }
+  
+  &:has(img)::after {
+    display: none;
+  }
+  
+  &:hover .overlay {
+    opacity: 1;
+  }
+`;
+
+const ImageOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+`;
+
+const IconButton = styled.button`
+  width: 36px;
+  height: 36px;
+  background: #FFF;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #000;
+    color: #FFF;
+  }
+  
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`;
+
+const UploadArea = styled.div`
+  border: 2px dashed #E0E0E0;
+  padding: 3rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #FAFAFA;
+  
+  &:hover {
+    border-color: #000;
+  }
+  
+  p {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: #666;
+  }
+`;
+
+const EntryCard = styled.div`
+  padding: 1.25rem;
+  border: 1px solid #F0F0F0;
+  margin-bottom: 1rem;
+  background: #FAFAFA;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const EntryHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+`;
+
+const EntryName = styled.p`
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #000;
+`;
+
+const EntryDate = styled.p`
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  color: #999;
+`;
+
+const EntryContent = styled.p`
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.6;
 `;
 
 // Icons
@@ -671,14 +658,15 @@ const Icons = {
   menu: <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>,
 };
 
+// ============================================
+// MAIN COMPONENT
+// ============================================
+
 function AdminDashboard({ config = {}, onArchiveToggle }) {
-  // Login State
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  
-  // Dashboard State
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -686,11 +674,11 @@ function AdminDashboard({ config = {}, onArchiveToggle }) {
   const [archiveActive, setArchiveActive] = useState(false);
   const fileInputRef = useRef(null);
   
-  // Demo credentials
   const ADMIN_USER = 'demo';
   const ADMIN_PASS = 'demo';
   
-  // Handle Login
+  const { coupleName = "Pauli & Mo" } = config;
+  
   const handleLogin = (e) => {
     e.preventDefault();
     if (loginUsername === ADMIN_USER && loginPassword === ADMIN_PASS) {
@@ -704,30 +692,25 @@ function AdminDashboard({ config = {}, onArchiveToggle }) {
   
   // Demo Data
   const [rsvpData] = useState([
-    { id: 1, name: 'Mo Smith', email: 'jordan@example.com', guests: 2, status: 'confirmed', dietary: 'Keine', menu: 'Fleisch', date: '2025-01-15' },
-    { id: 2, name: 'Anna Schmidt', email: 'anna@example.com', guests: 1, status: 'confirmed', dietary: 'Vegetarisch', menu: 'Vegetarisch', date: '2025-01-14' },
-    { id: 3, name: 'Peter Weber', email: 'peter@example.com', guests: 3, status: 'pending', dietary: 'Vegan', menu: 'Vegan', date: '2025-01-13' },
-    { id: 4, name: 'Lisa Müller', email: 'lisa@example.com', guests: 2, status: 'declined', dietary: '', menu: '', date: '2025-01-12' },
-    { id: 5, name: 'Thomas Braun', email: 'thomas@example.com', guests: 4, status: 'confirmed', dietary: 'Glutenfrei', menu: 'Fisch', date: '2025-01-11' },
+    { id: 1, name: 'Emma Thompson', email: 'emma@example.com', guests: 2, status: 'confirmed', dietary: 'None', menu: 'Beef', date: '2025-01-15' },
+    { id: 2, name: 'James Wilson', email: 'james@example.com', guests: 1, status: 'confirmed', dietary: 'Vegetarian', menu: 'Vegetarian', date: '2025-01-14' },
+    { id: 3, name: 'Sophie Chen', email: 'sophie@example.com', guests: 3, status: 'pending', dietary: 'Vegan', menu: 'Vegan', date: '2025-01-13' },
+    { id: 4, name: 'Marcus Rivera', email: 'marcus@example.com', guests: 2, status: 'declined', dietary: '', menu: '', date: '2025-01-12' },
+    { id: 5, name: 'Olivia Brown', email: 'olivia@example.com', guests: 4, status: 'confirmed', dietary: 'Gluten-free', menu: 'Fish', date: '2025-01-11' },
   ]);
   
-  const [guestPhotos, setGuestPhotos] = useState([
-    { id: 1, url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=300', uploader: 'Mo S.' },
-    { id: 2, url: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=300', uploader: 'Anna S.' },
-    { id: 3, url: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=300', uploader: 'Peter W.' },
-  ]);
-  
+  const [guestPhotos, setGuestPhotos] = useState([]);
   const [couplePhotos, setCouplePhotos] = useState([]);
   
   const [musicWishes] = useState([
-    { id: 1, name: 'Mo', song: 'Perfect', artist: 'Ed Sheeran', date: '2025-01-15' },
-    { id: 2, name: 'Anna', song: 'Thinking Out Loud', artist: 'Ed Sheeran', date: '2025-01-14' },
-    { id: 3, name: 'Peter', song: 'Marry You', artist: 'Bruno Mars', date: '2025-01-13' },
+    { id: 1, name: 'Emma', song: 'Perfect', artist: 'Ed Sheeran', date: '2025-01-15' },
+    { id: 2, name: 'James', song: 'Thinking Out Loud', artist: 'Ed Sheeran', date: '2025-01-14' },
+    { id: 3, name: 'Sophie', song: 'Marry You', artist: 'Bruno Mars', date: '2025-01-13' },
   ]);
   
   const [guestbookEntries] = useState([
-    { id: 1, name: 'Oma Helga', message: 'Ich freue mich so sehr für euch beide! Alles Gute!', date: '2025-01-15' },
-    { id: 2, name: 'Onkel Hans', message: 'Herzlichen Glückwunsch! Wir können es kaum erwarten!', date: '2025-01-14' },
+    { id: 1, name: 'Grandma Rose', message: "I'm so happy for you both! Can't wait to celebrate!", date: '2025-01-15' },
+    { id: 2, name: 'Uncle Tom', message: 'Congratulations! We're counting down the days!', date: '2025-01-14' },
   ]);
 
   useEffect(() => {
@@ -740,106 +723,43 @@ function AdminDashboard({ config = {}, onArchiveToggle }) {
     setArchiveActive(newState);
     if (onArchiveToggle) onArchiveToggle(newState);
   };
-  
-  // If not logged in, show login screen
-  if (!isLoggedIn) {
-    return (
-      <LoginContainer>
-        <LoginBox>
-          <LoginHeader>
-            <LoginDot $color="#ff5f56" />
-            <LoginDot $color="#ffbd2e" />
-            <LoginDot $color="#27c93f" />
-            <LoginTitle>admin_login.sh</LoginTitle>
-          </LoginHeader>
-          <LoginBody>
-            <LoginLogo>
-              <h1>// Admin Panel</h1>
-              <p>Authentication required</p>
-            </LoginLogo>
-            <LoginForm onSubmit={handleLogin}>
-              {loginError && <LoginError>{loginError}</LoginError>}
-              <LoginField>
-                <label>username:</label>
-                <input 
-                  type="text" 
-                  placeholder="Enter username"
-                  value={loginUsername}
-                  onChange={(e) => setLoginUsername(e.target.value)}
-                  autoFocus
-                />
-              </LoginField>
-              <LoginField>
-                <label>password:</label>
-                <input 
-                  type="password" 
-                  placeholder="Enter password"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                />
-              </LoginField>
-              <LoginSubmit type="submit">
-                Authenticate →
-              </LoginSubmit>
-            </LoginForm>
-            <LoginBackLink onClick={() => window.location.href = '/'}>
-              ← Back to website
-            </LoginBackLink>
-          </LoginBody>
-        </LoginBox>
-      </LoginContainer>
-    );
-  }
 
-  // Stats
   const stats = {
     total: rsvpData.length,
     confirmed: rsvpData.filter(r => r.status === 'confirmed').length,
     pending: rsvpData.filter(r => r.status === 'pending').length,
     declined: rsvpData.filter(r => r.status === 'declined').length,
-    totalGuests: rsvpData.filter(r => r.status === 'confirmed').reduce((acc, r) => acc + r.guests, 0),
-    photos: guestPhotos.length,
-    musicWishes: musicWishes.length,
-    guestbookEntries: guestbookEntries.length,
+    guests: rsvpData.filter(r => r.status === 'confirmed').reduce((sum, r) => sum + r.guests, 0),
   };
 
-  const menuStats = {
-    Fleisch: rsvpData.filter(r => r.menu === 'Fleisch' && r.status === 'confirmed').length,
-    Fisch: rsvpData.filter(r => r.menu === 'Fisch' && r.status === 'confirmed').length,
-    Vegetarisch: rsvpData.filter(r => r.menu === 'Vegetarisch' && r.status === 'confirmed').length,
-    Vegan: rsvpData.filter(r => r.menu === 'Vegan' && r.status === 'confirmed').length,
-  };
-
-  const filteredRsvps = rsvpData.filter(r => 
+  const filteredRsvp = rsvpData.filter(r => 
     r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     r.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const exportCSV = (data, filename) => {
-    let csv;
-    if (filename.includes('rsvp')) {
-      csv = [
-        ['Name', 'Email', 'Gäste', 'Status', 'Menü', 'Unverträglichkeiten', 'Datum'].join(','),
-        ...data.map(r => [r.name, r.email, r.guests, r.status, r.menu, r.dietary, r.date].join(','))
-      ].join('\n');
-    } else if (filename.includes('music')) {
-      csv = [
-        ['Name', 'Song', 'Künstler', 'Datum'].join(','),
-        ...data.map(r => [r.name, r.song, r.artist, r.date].join(','))
-      ].join('\n');
-    } else {
-      csv = [
-        ['Name', 'Nachricht', 'Datum'].join(','),
-        ...data.map(r => [r.name, `"${r.message}"`, r.date].join(','))
-      ].join('\n');
+    let csv = '';
+    if (filename === 'rsvp') {
+      csv = 'Name,Email,Guests,Status,Menu,Dietary,Date\n';
+      data.forEach(r => {
+        csv += `"${r.name}","${r.email}",${r.guests},${r.status},"${r.menu}","${r.dietary}",${r.date}\n`;
+      });
+    } else if (filename === 'music') {
+      csv = 'Name,Song,Artist,Date\n';
+      data.forEach(r => {
+        csv += `"${r.name}","${r.song}","${r.artist}",${r.date}\n`;
+      });
+    } else if (filename === 'guestbook') {
+      csv = 'Name,Message,Date\n';
+      data.forEach(r => {
+        csv += `"${r.name}","${r.message}",${r.date}\n`;
+      });
     }
-    
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${filename}.csv`;
-    a.click();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${filename}.csv`;
+    link.click();
   };
 
   const handlePhotoUpload = (e) => {
@@ -859,36 +779,89 @@ function AdminDashboard({ config = {}, onArchiveToggle }) {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Icons.dashboard },
-    { id: 'rsvp', label: 'RSVPs', icon: Icons.rsvp, badge: stats.pending, badgeColor: '#ffbd2e' },
-    { id: 'couple-photos', label: 'Paar Fotos', icon: Icons.photos },
-    { id: 'guest-photos', label: 'Gäste Fotos', icon: Icons.photos, badge: stats.photos, badgeColor: '#000000' },
-    { id: 'music', label: 'Musikwünsche', icon: Icons.music, badge: stats.musicWishes, badgeColor: '#666666' },
-    { id: 'guestbook', label: 'Gästebuch', icon: Icons.guestbook, badge: stats.guestbookEntries, badgeColor: '#999999' },
-    { id: 'archive', label: 'Archiv', icon: Icons.archive },
-    { id: 'settings', label: 'Einstellungen', icon: Icons.settings },
+    { id: 'rsvp', label: 'RSVPs', icon: Icons.rsvp, badge: stats.pending, badgeColor: '#F57F17' },
+    { id: 'couple-photos', label: 'Couple Photos', icon: Icons.photos },
+    { id: 'guest-photos', label: 'Guest Photos', icon: Icons.photos },
+    { id: 'music', label: 'Music Wishes', icon: Icons.music },
+    { id: 'guestbook', label: 'Guestbook', icon: Icons.guestbook },
+    { id: 'archive', label: 'Archive', icon: Icons.archive },
+    { id: 'settings', label: 'Settings', icon: Icons.settings },
   ];
 
+  // ============================================
+  // LOGIN SCREEN
+  // ============================================
+  if (!isLoggedIn) {
+    return (
+      <LoginContainer>
+        <LoginBox>
+          <LoginLogo>
+            <h1>Admin <span>Dashboard</span></h1>
+            <p>Sign in to manage your wedding</p>
+          </LoginLogo>
+          
+          <LoginForm onSubmit={handleLogin}>
+            {loginError && <LoginError>{loginError}</LoginError>}
+            
+            <FormGroup>
+              <Label>Username</Label>
+              <Input 
+                type="text" 
+                placeholder="Enter username"
+                value={loginUsername}
+                onChange={(e) => setLoginUsername(e.target.value)}
+                autoFocus
+              />
+            </FormGroup>
+            
+            <FormGroup>
+              <Label>Password</Label>
+              <Input 
+                type="password" 
+                placeholder="Enter password"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+              />
+            </FormGroup>
+            
+            <LoginButton type="submit">Sign In</LoginButton>
+          </LoginForm>
+          
+          <BackLink onClick={() => window.location.href = '/'}>← Back to website</BackLink>
+        </LoginBox>
+      </LoginContainer>
+    );
+  }
+
+  // ============================================
+  // DASHBOARD CONTENT
+  // ============================================
   const renderContent = () => {
-    switch(activeTab) {
+    switch (activeTab) {
       case 'dashboard':
         return (
           <>
             <StatsGrid>
-              <StatCard $color="#000000"><StatLabel>Antworten</StatLabel><StatValue $color="#000000">{stats.total}</StatValue></StatCard>
-              <StatCard $color="#2E7D32"><StatLabel>Zusagen</StatLabel><StatValue $color="#2E7D32">{stats.confirmed}</StatValue></StatCard>
-              <StatCard $color="#ffbd2e"><StatLabel>Ausstehend</StatLabel><StatValue $color="#ffbd2e">{stats.pending}</StatValue></StatCard>
-              <StatCard $color="#666666"><StatLabel>Absagen</StatLabel><StatValue $color="#666666">{stats.declined}</StatValue></StatCard>
-              <StatCard $color="#999999"><StatLabel>Gäste gesamt</StatLabel><StatValue $color="#999999">{stats.totalGuests}</StatValue></StatCard>
-              <StatCard $color="#000000"><StatLabel>Gäste Fotos</StatLabel><StatValue $color="#000000">{stats.photos}</StatValue></StatCard>
+              <StatCard><StatNumber>{stats.total}</StatNumber><StatLabel>Total Responses</StatLabel></StatCard>
+              <StatCard><StatNumber>{stats.confirmed}</StatNumber><StatLabel>Confirmed</StatLabel></StatCard>
+              <StatCard><StatNumber>{stats.pending}</StatNumber><StatLabel>Pending</StatLabel></StatCard>
+              <StatCard><StatNumber>{stats.guests}</StatNumber><StatLabel>Total Guests</StatLabel></StatCard>
             </StatsGrid>
+            
             <Panel>
-              <PanelHeader><Dot $color="#ff5f56" /><Dot $color="#ffbd2e" /><Dot $color="#27c93f" /><PanelTitle>Menü-Übersicht</PanelTitle></PanelHeader>
+              <PanelHeader><PanelTitle>Recent Activity</PanelTitle></PanelHeader>
               <PanelContent>
-                <StatsGrid>
-                  {Object.entries(menuStats).map(([menu, count]) => (
-                    <StatCard key={menu} $color="#000000"><StatLabel>{menu}</StatLabel><StatValue $color="#000000">{count}</StatValue></StatCard>
-                  ))}
-                </StatsGrid>
+                {rsvpData.slice(0, 3).map(r => (
+                  <EntryCard key={r.id}>
+                    <EntryHeader>
+                      <EntryName>{r.name}</EntryName>
+                      <StatusBadge $status={r.status}>
+                        {r.status === 'confirmed' ? 'Confirmed' : r.status === 'declined' ? 'Declined' : 'Pending'}
+                      </StatusBadge>
+                    </EntryHeader>
+                    <EntryContent>{r.guests} guest(s) · {r.menu || 'No menu selected'}</EntryContent>
+                  </EntryCard>
+                ))}
               </PanelContent>
             </Panel>
           </>
@@ -897,30 +870,36 @@ function AdminDashboard({ config = {}, onArchiveToggle }) {
       case 'rsvp':
         return (
           <>
-            <HeaderActions>
-              <SearchInput placeholder="Suche..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-              <Button onClick={() => exportCSV(rsvpData, 'rsvp-export')}>{Icons.download} CSV Export</Button>
-            </HeaderActions>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+              <SearchInput 
+                type="text" 
+                placeholder="Search by name or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Button onClick={() => exportCSV(rsvpData, 'rsvp')}>{Icons.download} Export CSV</Button>
+            </div>
+            
             <Panel>
-              <PanelHeader><Dot $color="#ff5f56" /><Dot $color="#ffbd2e" /><Dot $color="#27c93f" /><PanelTitle>RSVPs ({filteredRsvps.length})</PanelTitle></PanelHeader>
-              <PanelContent>
-                <TableWrapper>
-                  <Table>
-                    <thead><tr><Th>Name</Th><Th>Email</Th><Th>Gäste</Th><Th>Status</Th><Th>Menü</Th><Th>Unverträgl.</Th></tr></thead>
-                    <tbody>
-                      {filteredRsvps.map(row => (
-                        <tr key={row.id}>
-                          <Td>{row.name}</Td>
-                          <Td>{row.email}</Td>
-                          <Td>{row.guests}</Td>
-                          <Td><StatusBadge $status={row.status}>{row.status === 'confirmed' ? 'Zugesagt' : row.status === 'pending' ? 'Ausstehend' : 'Abgesagt'}</StatusBadge></Td>
-                          <Td>{row.menu || '—'}</Td>
-                          <Td>{row.dietary || '—'}</Td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </Table>
-                </TableWrapper>
+              <PanelHeader><PanelTitle>All RSVPs ({rsvpData.length})</PanelTitle></PanelHeader>
+              <PanelContent style={{ overflowX: 'auto' }}>
+                <Table>
+                  <thead>
+                    <tr><Th>Name</Th><Th>Email</Th><Th>Guests</Th><Th>Status</Th><Th>Menu</Th><Th>Date</Th></tr>
+                  </thead>
+                  <tbody>
+                    {filteredRsvp.map(r => (
+                      <tr key={r.id}>
+                        <Td>{r.name}</Td>
+                        <Td>{r.email}</Td>
+                        <Td>{r.guests}</Td>
+                        <Td><StatusBadge $status={r.status}>{r.status === 'confirmed' ? 'Confirmed' : r.status === 'declined' ? 'Declined' : 'Pending'}</StatusBadge></Td>
+                        <Td>{r.menu || '-'}</Td>
+                        <Td>{r.date}</Td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
               </PanelContent>
             </Panel>
           </>
@@ -929,15 +908,16 @@ function AdminDashboard({ config = {}, onArchiveToggle }) {
       case 'couple-photos':
         return (
           <Panel>
-            <PanelHeader><Dot $color="#ff5f56" /><Dot $color="#ffbd2e" /><Dot $color="#27c93f" /><PanelTitle>Fotos für Archiv hochladen</PanelTitle></PanelHeader>
+            <PanelHeader><PanelTitle>Upload Photos for Archive</PanelTitle></PanelHeader>
             <PanelContent>
               <UploadArea onClick={() => fileInputRef.current?.click()}>
-                <div style={{ fontSize: '3rem', marginBottom: 15 }}>📸</div>
-                <p style={{ color: 'rgba(255,255,255,0.6)', fontFamily: 'Inter' }}>Fotos hierher ziehen oder <span style={{ color: '#000000' }}>durchsuchen</span></p>
+                <div style={{ fontSize: '2.5rem', marginBottom: '1rem', opacity: 0.3 }}>📷</div>
+                <p>Drag photos here or click to browse</p>
                 <input ref={fileInputRef} type="file" multiple accept="image/*" style={{ display: 'none' }} onChange={handlePhotoUpload} />
               </UploadArea>
+              
               {couplePhotos.length > 0 && (
-                <ImageGrid>
+                <ImageGrid style={{ marginTop: '1.5rem' }}>
                   {couplePhotos.map(photo => (
                     <ImageCard key={photo.id}>
                       <img src={photo.url} alt={photo.name} />
@@ -954,42 +934,43 @@ function AdminDashboard({ config = {}, onArchiveToggle }) {
 
       case 'guest-photos':
         return (
-          <>
-            <HeaderActions>
-              <Button onClick={() => alert(`Download von ${guestPhotos.length} Fotos...`)}>{Icons.download} Alle herunterladen ({guestPhotos.length})</Button>
-            </HeaderActions>
-            <Panel>
-              <PanelHeader><Dot $color="#ff5f56" /><Dot $color="#ffbd2e" /><Dot $color="#27c93f" /><PanelTitle>Gäste Fotos ({guestPhotos.length})</PanelTitle></PanelHeader>
-              <PanelContent>
+          <Panel>
+            <PanelHeader><PanelTitle>Guest Photos</PanelTitle></PanelHeader>
+            <PanelContent>
+              {guestPhotos.length > 0 ? (
                 <ImageGrid>
                   {guestPhotos.map(photo => (
                     <ImageCard key={photo.id}>
-                      <img src={photo.url} alt="Gästefoto" />
-                      <ImageOverlay className="overlay">
-                        <IconButton>{Icons.download}</IconButton>
-                        <IconButton onClick={() => setGuestPhotos(prev => prev.filter(p => p.id !== photo.id))}>{Icons.delete}</IconButton>
-                      </ImageOverlay>
+                      <img src={photo.url} alt="Guest photo" />
                     </ImageCard>
                   ))}
                 </ImageGrid>
-              </PanelContent>
-            </Panel>
-          </>
+              ) : (
+                <p style={{ fontFamily: 'Inter', fontSize: '0.9rem', color: '#999', textAlign: 'center', padding: '2rem' }}>
+                  No guest photos uploaded yet.
+                </p>
+              )}
+            </PanelContent>
+          </Panel>
         );
 
       case 'music':
         return (
           <>
-            <HeaderActions>
-              <Button onClick={() => exportCSV(musicWishes, 'musikwuensche')}>{Icons.download} CSV Export</Button>
-            </HeaderActions>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <Button onClick={() => exportCSV(musicWishes, 'music')}>{Icons.download} Export CSV</Button>
+            </div>
+            
             <Panel>
-              <PanelHeader><Dot $color="#ff5f56" /><Dot $color="#ffbd2e" /><Dot $color="#27c93f" /><PanelTitle>Musikwünsche ({musicWishes.length})</PanelTitle></PanelHeader>
+              <PanelHeader><PanelTitle>Music Wishes ({musicWishes.length})</PanelTitle></PanelHeader>
               <PanelContent $maxHeight="500px">
                 {musicWishes.map(wish => (
                   <EntryCard key={wish.id}>
-                    <EntryHeader><EntryName>🎵 {wish.song}</EntryName><EntryDate>{wish.date}</EntryDate></EntryHeader>
-                    <EntryContent><strong>{wish.artist}</strong> • Gewünscht von {wish.name}</EntryContent>
+                    <EntryHeader>
+                      <EntryName>{wish.song}</EntryName>
+                      <EntryDate>{wish.date}</EntryDate>
+                    </EntryHeader>
+                    <EntryContent>{wish.artist} · Requested by {wish.name}</EntryContent>
                   </EntryCard>
                 ))}
               </PanelContent>
@@ -1000,16 +981,20 @@ function AdminDashboard({ config = {}, onArchiveToggle }) {
       case 'guestbook':
         return (
           <>
-            <HeaderActions>
-              <Button onClick={() => exportCSV(guestbookEntries, 'gaestebuch')}>{Icons.download} CSV Export</Button>
-            </HeaderActions>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <Button onClick={() => exportCSV(guestbookEntries, 'guestbook')}>{Icons.download} Export CSV</Button>
+            </div>
+            
             <Panel>
-              <PanelHeader><Dot $color="#ff5f56" /><Dot $color="#ffbd2e" /><Dot $color="#27c93f" /><PanelTitle>Gästebuch ({guestbookEntries.length})</PanelTitle></PanelHeader>
+              <PanelHeader><PanelTitle>Guestbook Entries ({guestbookEntries.length})</PanelTitle></PanelHeader>
               <PanelContent $maxHeight="500px">
                 {guestbookEntries.map(entry => (
                   <EntryCard key={entry.id}>
-                    <EntryHeader><EntryName>{entry.name}</EntryName><EntryDate>{entry.date}</EntryDate></EntryHeader>
-                    <EntryContent>"{entry.message}"</EntryContent>
+                    <EntryHeader>
+                      <EntryName>{entry.name}</EntryName>
+                      <EntryDate>{entry.date}</EntryDate>
+                    </EntryHeader>
+                    <EntryContent>{entry.message}</EntryContent>
                   </EntryCard>
                 ))}
               </PanelContent>
@@ -1019,48 +1004,49 @@ function AdminDashboard({ config = {}, onArchiveToggle }) {
 
       case 'archive':
         return (
-          <>
-            <AlertBox $type={archiveActive ? 'success' : 'warning'}>
-              <span>{archiveActive ? '✓ Archiv-Modus aktiv. Hauptseite zeigt Archiv.' : '⚠ Archiv-Modus deaktiviert.'}</span>
-            </AlertBox>
-            <Panel>
-              <PanelHeader><Dot $color="#ff5f56" /><Dot $color="#ffbd2e" /><Dot $color="#27c93f" /><PanelTitle>Archiv-Steuerung</PanelTitle></PanelHeader>
-              <PanelContent>
-                <ToggleWrapper>
-                  <Toggle $active={archiveActive} onClick={handleArchiveToggle} />
-                  <ToggleLabel $active={archiveActive}>{archiveActive ? 'Archiv AKTIV' : 'Archiv INAKTIV'}</ToggleLabel>
-                </ToggleWrapper>
-                <p style={{ marginTop: 20, color: 'rgba(255,255,255,0.5)', fontFamily: 'Inter', fontSize: '0.85rem', lineHeight: 1.7 }}>
-                  Wenn aktiv, wird die Hauptseite (/) auf die Archiv-Seite umgeleitet.
-                </p>
-                <div style={{ marginTop: 30 }}>
-                  <Button onClick={() => window.open('/archive', '_blank')}>Archiv Vorschau →</Button>
-                </div>
-              </PanelContent>
-            </Panel>
-          </>
+          <Panel>
+            <PanelHeader><PanelTitle>Archive Settings</PanelTitle></PanelHeader>
+            <PanelContent>
+              <AlertBox $type={archiveActive ? 'success' : 'warning'}>
+                <p>{archiveActive ? '✓ Archive mode is ACTIVE. Main page redirects to archive.' : 'Archive mode is inactive. Main page shows wedding information.'}</p>
+              </AlertBox>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+                <ToggleSwitch>
+                  <input type="checkbox" checked={archiveActive} onChange={handleArchiveToggle} />
+                  <span></span>
+                </ToggleSwitch>
+                <span style={{ fontFamily: 'Inter', fontSize: '0.85rem' }}>
+                  {archiveActive ? 'Archive Active' : 'Archive Inactive'}
+                </span>
+              </div>
+              
+              <Button onClick={() => window.open('/archive', '_blank')}>Preview Archive Page</Button>
+            </PanelContent>
+          </Panel>
         );
 
       case 'settings':
         return (
           <>
             <Panel>
-              <PanelHeader><Dot $color="#ff5f56" /><Dot $color="#ffbd2e" /><Dot $color="#27c93f" /><PanelTitle>Daten exportieren</PanelTitle></PanelHeader>
+              <PanelHeader><PanelTitle>Export Data</PanelTitle></PanelHeader>
               <PanelContent>
-                <div style={{ display: 'flex', gap: 15, flexWrap: 'wrap' }}>
-                  <Button onClick={() => exportCSV(rsvpData, 'rsvp-komplett')}>{Icons.download} RSVPs</Button>
-                  <Button onClick={() => exportCSV(musicWishes, 'musikwuensche')}>{Icons.download} Musikwünsche</Button>
-                  <Button onClick={() => exportCSV(guestbookEntries, 'gaestebuch')}>{Icons.download} Gästebuch</Button>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  <Button onClick={() => exportCSV(rsvpData, 'rsvp')}>{Icons.download} RSVPs</Button>
+                  <Button onClick={() => exportCSV(musicWishes, 'music')}>{Icons.download} Music Wishes</Button>
+                  <Button onClick={() => exportCSV(guestbookEntries, 'guestbook')}>{Icons.download} Guestbook</Button>
                 </div>
               </PanelContent>
             </Panel>
+            
             <Panel>
-              <PanelHeader><Dot $color="#ff5f56" /><Dot $color="#ffbd2e" /><Dot $color="#27c93f" /><PanelTitle>Gefahrenzone</PanelTitle></PanelHeader>
+              <PanelHeader><PanelTitle>Danger Zone</PanelTitle></PanelHeader>
               <PanelContent>
-                <AlertBox $type="danger"><span>⚠ Diese Aktionen können nicht rückgängig gemacht werden!</span></AlertBox>
-                <div style={{ display: 'flex', gap: 15, flexWrap: 'wrap' }}>
-                  <Button $variant="danger">Alle RSVPs löschen</Button>
-                  <Button $variant="danger">Alle Fotos löschen</Button>
+                <AlertBox $type="danger"><p>⚠ These actions cannot be undone!</p></AlertBox>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  <Button $variant="danger">Delete All RSVPs</Button>
+                  <Button $variant="danger">Delete All Photos</Button>
                 </div>
               </PanelContent>
             </Panel>
@@ -1073,45 +1059,50 @@ function AdminDashboard({ config = {}, onArchiveToggle }) {
   };
 
   return (
-    <Container>
+    <DashboardContainer>
       <MobileMenuToggle onClick={() => setSidebarOpen(!sidebarOpen)}>{Icons.menu}</MobileMenuToggle>
       <SidebarBackdrop $open={sidebarOpen} onClick={() => setSidebarOpen(false)} />
       
       <Sidebar $open={sidebarOpen}>
         <SidebarHeader>
-          <Logo>// Admin Panel</Logo>
-          <LogoSub>Wedding Dashboard v1.0</LogoSub>
+          <SidebarLogo>Admin <span>Panel</span></SidebarLogo>
+          <SidebarSub>{coupleName}</SidebarSub>
         </SidebarHeader>
+        
         {navItems.map(item => (
-          <NavItem key={item.id} $active={activeTab === item.id} onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}>
+          <NavItem 
+            key={item.id} 
+            $active={activeTab === item.id} 
+            onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
+          >
             {item.icon}
             {item.label}
             {item.badge > 0 && <NavBadge $color={item.badgeColor}>{item.badge}</NavBadge>}
           </NavItem>
         ))}
+        
         <NavDivider />
-        <NavItem onClick={() => window.location.href = '/'}>← Zurück zur Website</NavItem>
+        <NavItem onClick={() => window.location.href = '/'}>← Back to Website</NavItem>
       </Sidebar>
 
       <Main>
         <Header>
-          <div>
-            <Title>
-              {activeTab === 'dashboard' && <>Dashboard <span>Overview</span></>}
-              {activeTab === 'rsvp' && <>RSVP <span>Verwaltung</span></>}
-              {activeTab === 'couple-photos' && <>Paar <span>Fotos</span></>}
-              {activeTab === 'guest-photos' && <>Gäste <span>Fotos</span></>}
-              {activeTab === 'music' && <>Musik<span>wünsche</span></>}
-              {activeTab === 'guestbook' && <>Gäste<span>buch</span></>}
-              {activeTab === 'archive' && <>Archiv <span>Steuerung</span></>}
-              {activeTab === 'settings' && <>Ein<span>stellungen</span></>}
-            </Title>
-            <Subtitle>$ system_time={currentTime.toLocaleTimeString('de-DE')} <span className="blink">█</span></Subtitle>
-          </div>
+          <PageTitle>
+            {activeTab === 'dashboard' && <>Dashboard</>}
+            {activeTab === 'rsvp' && <>RSVP <span>Management</span></>}
+            {activeTab === 'couple-photos' && <>Couple <span>Photos</span></>}
+            {activeTab === 'guest-photos' && <>Guest <span>Photos</span></>}
+            {activeTab === 'music' && <>Music <span>Wishes</span></>}
+            {activeTab === 'guestbook' && <>Guest<span>book</span></>}
+            {activeTab === 'archive' && <>Archive <span>Settings</span></>}
+            {activeTab === 'settings' && <>Settings</>}
+          </PageTitle>
+          <HeaderTime>{currentTime.toLocaleTimeString('en-US')}</HeaderTime>
         </Header>
+        
         {renderContent()}
       </Main>
-    </Container>
+    </DashboardContainer>
   );
 }
 
