@@ -710,7 +710,7 @@ function AdminDashboard({ config = {}, onArchiveToggle }) {
   
   const [guestbookEntries] = useState([
     { id: 1, name: 'Grandma Rose', message: "I'm so happy for you both! Can't wait to celebrate!", date: '2025-01-15' },
-    { id: 2, name: 'Uncle Tom', message: 'Congratulations! We're counting down the days!', date: '2025-01-14' },
+    { id: 2, name: 'Uncle Tom', message: "Congratulations! We're counting down the days!", date: '2025-01-14' },
   ]);
 
   useEffect(() => {
