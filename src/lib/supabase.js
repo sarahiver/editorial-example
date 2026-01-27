@@ -268,6 +268,26 @@ export async function updateProjectStatus(projectId, status) {
 }
 
 // ============================================
+// PROJECT CONTENT UPDATE
+// ============================================
+export async function updateProjectContent(projectId, component, contentData) {
+  // Use upsert to insert or update
+  const { data, error } = await supabase
+    .from('project_content')
+    .upsert({
+      project_id: projectId,
+      component: component,
+      content: contentData,
+    }, {
+      onConflict: 'project_id,component',
+    })
+    .select()
+    .single();
+  
+  return { data, error };
+}
+
+// ============================================
 // CONTACT REQUESTS (Marketing)
 // ============================================
 export async function submitContactRequest(requestData) {
