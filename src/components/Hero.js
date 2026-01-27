@@ -59,7 +59,7 @@ const BackgroundGrid = styled.div`
   inset: 0;
   background-image: 
     linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+    linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px);
   background-size: 80px 80px;
   pointer-events: none;
 `;
@@ -73,7 +73,7 @@ const BackgroundCircle = styled.div`
   height: 60vw;
   max-width: 800px;
   max-height: 800px;
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid rgba(0,0,0,0.8);
   border-radius: 50%;
   pointer-events: none;
 `;
