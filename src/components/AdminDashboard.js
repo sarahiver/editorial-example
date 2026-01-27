@@ -1,6 +1,7 @@
 // src/components/AdminDashboard.js - Complete Admin v19
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
+import JSZip from 'jszip';
 import { useWedding } from '../context/WeddingContext';
 import {
   getRSVPResponses, getGuestbookEntries, getMusicWishes, getPhotoUploads,
@@ -274,27 +275,45 @@ function AdminDashboard() {
 
   const togglePhoto = (id) => { const s = new Set(selectedPhotos); s.has(id) ? s.delete(id) : s.add(id); setSelectedPhotos(s); };
   
+  const [isDownloading, setIsDownloading] = useState(false);
+  
   const downloadPhotos = async (photos) => {
-    for (const p of photos) {
-      if (p.cloudinary_url) {
-        try {
-          // Fetch image as blob to force download
-          const response = await fetch(p.cloudinary_url);
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `foto_${p.id}.jpg`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);
-          await new Promise(r => setTimeout(r, 500));
-        } catch (e) {
-          console.error('Download failed:', e);
+    if (photos.length === 0) return;
+    setIsDownloading(true);
+    
+    try {
+      const zip = new JSZip();
+      const folder = zip.folder('gaeste-fotos');
+      
+      for (let i = 0; i < photos.length; i++) {
+        const p = photos[i];
+        if (p.cloudinary_url) {
+          try {
+            const response = await fetch(p.cloudinary_url);
+            const blob = await response.blob();
+            const ext = p.cloudinary_url.includes('.png') ? 'png' : 'jpg';
+            folder.file(`foto_${i + 1}_${p.id}.${ext}`, blob);
+          } catch (e) {
+            console.error('Failed to fetch image:', e);
+          }
         }
       }
+      
+      const content = await zip.generateAsync({ type: 'blob' });
+      const url = window.URL.createObjectURL(content);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `gaeste-fotos_${new Date().toISOString().slice(0,10)}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('ZIP creation failed:', e);
+      alert('Download fehlgeschlagen');
     }
+    
+    setIsDownloading(false);
   };
 
   const stats = { confirmed: rsvpData.filter(r => r.attending).length, declined: rsvpData.filter(r => !r.attending).length, guests: rsvpData.filter(r => r.attending).reduce((s, r) => s + (r.persons || 1), 0), pending: guestbookEntries.filter(e => !e.approved).length };
@@ -353,7 +372,7 @@ function AdminDashboard() {
       
       case 'music': return (<><div style={{marginBottom:'1.5rem'}}><Button onClick={()=>exportCSV(musicWishes,'musik')}>Export</Button></div><Panel><PanelContent $maxHeight="600px">{musicWishes.map(w=><EntryCard key={w.id}><EntryHeader><EntryName>🎵 {w.song_title}</EntryName><SmallButton $variant="danger" onClick={()=>handleDeleteMusic(w.id)}>×</SmallButton></EntryHeader><EntryContent>{w.artist}</EntryContent></EntryCard>)}{!musicWishes.length&&<EmptyState>Keine Wünsche</EmptyState>}</PanelContent></Panel></>);
       
-      case 'photos': return (<Panel><PanelHeader><PanelTitle>Fotos ({photoUploads.length})</PanelTitle></PanelHeader><PanelContent><PhotoActions><SmallButton onClick={()=>setSelectedPhotos(new Set(photoUploads.map(p=>p.id)))}>Alle</SmallButton><SmallButton onClick={()=>setSelectedPhotos(new Set())}>Keine</SmallButton><span style={{color:'#666',fontSize:'0.8rem'}}>{selectedPhotos.size} ausgewählt</span><div style={{marginLeft:'auto',display:'flex',gap:'0.5rem'}}><Button $variant="secondary" onClick={()=>downloadPhotos(photoUploads.filter(p=>selectedPhotos.has(p.id)))} disabled={!selectedPhotos.size}>Auswahl ↓</Button><Button onClick={()=>downloadPhotos(photoUploads)} disabled={!photoUploads.length}>Alle ↓</Button></div></PhotoActions><PhotoGrid>{photoUploads.map(p=><PhotoThumb key={p.id} $url={p.cloudinary_url} $sel={selectedPhotos.has(p.id)} onClick={()=>togglePhoto(p.id)}/>)}</PhotoGrid>{!photoUploads.length&&<EmptyState>Keine Fotos</EmptyState>}</PanelContent></Panel>);
+      case 'photos': return (<Panel><PanelHeader><PanelTitle>Fotos ({photoUploads.length})</PanelTitle></PanelHeader><PanelContent><PhotoActions><SmallButton onClick={()=>setSelectedPhotos(new Set(photoUploads.map(p=>p.id)))}>Alle</SmallButton><SmallButton onClick={()=>setSelectedPhotos(new Set())}>Keine</SmallButton><span style={{color:'#666',fontSize:'0.8rem'}}>{selectedPhotos.size} ausgewählt</span><div style={{marginLeft:'auto',display:'flex',gap:'0.5rem'}}><Button $variant="secondary" onClick={()=>downloadPhotos(photoUploads.filter(p=>selectedPhotos.has(p.id)))} disabled={!selectedPhotos.size||isDownloading}>{isDownloading?'Lädt...':'Auswahl ↓'}</Button><Button onClick={()=>downloadPhotos(photoUploads)} disabled={!photoUploads.length||isDownloading}>{isDownloading?'Lädt...':'Alle ↓'}</Button></div></PhotoActions><PhotoGrid>{photoUploads.map(p=><PhotoThumb key={p.id} $url={p.cloudinary_url} $sel={selectedPhotos.has(p.id)} onClick={()=>togglePhoto(p.id)}/>)}</PhotoGrid>{!photoUploads.length&&<EmptyState>Keine Fotos</EmptyState>}</PanelContent></Panel>);
       
       case 'edit-hero': return (<Panel><PanelHeader><PanelTitle>Hero</PanelTitle>{saveSuccess&&<StatusBadge $status="confirmed">✓</StatusBadge>}</PanelHeader><PanelContent><InlineUpload label="Hintergrundbild" image={heroContent.background_image} onUpload={url=>setHeroContent({...heroContent,background_image:url})} folder={`${baseFolder}/hero`} cloudName={cloudName} uploadPreset={uploadPreset} ratio="16/9"/><FormGroup $mb="1rem"><Label>Tagline</Label><Input value={heroContent.tagline||''} onChange={e=>setHeroContent({...heroContent,tagline:e.target.value})} placeholder="Wir heiraten"/></FormGroup><FormGroup $mb="1.5rem"><Label>Location</Label><Input value={heroContent.location_short||''} onChange={e=>setHeroContent({...heroContent,location_short:e.target.value})} placeholder="Hamburg"/></FormGroup><Button onClick={()=>saveContent('hero',heroContent)} disabled={isSaving}>{isSaving?'...':'Speichern'}</Button></PanelContent></Panel>);
       
