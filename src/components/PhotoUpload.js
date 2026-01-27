@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useWedding } from '../context/WeddingContext';
-import { useCloudinaryUpload } from '../hooks/useCloudinaryUpload';
 import { submitPhotoUpload } from '../lib/supabase';
 
 const Section = styled.section`
@@ -57,14 +56,14 @@ const Subtitle = styled.p`
   transition-delay: 0.2s;
 `;
 
-const UploadArea = styled.div`
-  border: 2px dashed #E0E0E0;
-  background: #FAFAFA;
-  padding: 4rem 2rem;
+const DropZone = styled.div`
+  border: 2px dashed ${p => p.$isDragging ? '#000' : p.$hasFiles ? '#2E7D32' : '#E0E0E0'};
+  background: ${p => p.$isDragging ? '#F5F5F5' : '#FAFAFA'};
+  padding: 3rem 2rem;
   text-align: center;
-  cursor: pointer;
   transition: all 0.3s ease;
-  margin-bottom: 2rem;
+  cursor: pointer;
+  position: relative;
   
   &:hover {
     border-color: #000;
@@ -72,68 +71,31 @@ const UploadArea = styled.div`
   }
 `;
 
-const UploadIcon = styled.div`
+const DropZoneIcon = styled.div`
   font-size: 3rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+  
+  ${DropZone}:hover & {
+    transform: scale(1.1);
+  }
 `;
 
-const UploadText = styled.p`
+const DropZoneText = styled.p`
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
   color: #666;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 `;
 
-const UploadButton = styled.button`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #FFF;
-  background: #000;
-  border: none;
-  padding: 1rem 2rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: #333;
-  }
-  
-  &:disabled {
-    background: #CCC;
-    cursor: not-allowed;
-  }
-`;
-
-const UploadedPhotos = styled.div`
-  margin-top: 3rem;
-`;
-
-const PhotosHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-`;
-
-const PhotosTitle = styled.h3`
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.5rem;
-  font-weight: 400;
-`;
-
-const PhotoCount = styled.span`
+const DropZoneSubtext = styled.p`
   font-family: 'Inter', sans-serif;
   font-size: 0.8rem;
-  color: #666;
+  color: #999;
 `;
 
-const PhotosGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
+const HiddenInput = styled.input`
+  display: none;
 `;
 
 const fadeIn = keyframes`
@@ -141,37 +103,96 @@ const fadeIn = keyframes`
   to { opacity: 1; transform: scale(1); }
 `;
 
-const PhotoItem = styled.div`
-  aspect-ratio: 1;
-  background: ${p => p.$url ? `url(${p.$url}) center/cover` : '#E5E5E5'};
-  border-radius: 4px;
+const PreviewGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+`;
+
+const PreviewItem = styled.div`
   position: relative;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  overflow: hidden;
   animation: ${fadeIn} 0.3s ease;
+  background: #F0F0F0;
+`;
+
+const PreviewImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const PreviewOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
   
-  &:hover .remove-btn {
+  ${PreviewItem}:hover & {
     opacity: 1;
   }
 `;
 
 const RemoveButton = styled.button`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #FFF;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    background: #FF5252;
+    color: #FFF;
+  }
+`;
+
+const UploadProgress = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #E0E0E0;
+`;
+
+const UploadProgressBar = styled.div`
+  height: 100%;
+  background: #2E7D32;
+  width: ${p => p.$progress}%;
+  transition: width 0.3s ease;
+`;
+
+const UploadStatus = styled.div`
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: rgba(0,0,0,0.7);
-  color: #FFF;
-  border: none;
-  cursor: pointer;
+  background: ${p => p.$status === 'done' ? '#2E7D32' : p.$status === 'error' ? '#C62828' : '#FFF'};
+  color: ${p => p.$status === 'done' || p.$status === 'error' ? '#FFF' : '#000'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 14px;
-  line-height: 1;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  
-  &:hover {
-    background: #C62828;
-  }
+`;
+
+const FormSection = styled.div`
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #E0E0E0;
 `;
 
 const NameInput = styled.input`
@@ -190,10 +211,35 @@ const NameInput = styled.input`
   }
 `;
 
+const SubmitButton = styled.button`
+  width: 100%;
+  padding: 1.25rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #FFF;
+  background: #000;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    background: #333;
+  }
+  
+  &:disabled {
+    background: #CCC;
+    cursor: not-allowed;
+  }
+`;
+
 const SuccessMessage = styled.div`
   text-align: center;
   padding: 3rem;
   background: #F5F5F5;
+  animation: ${fadeIn} 0.5s ease;
 `;
 
 const SuccessIcon = styled.div`
@@ -248,15 +294,53 @@ const ConfigNotice = styled.div`
     color: #666;
     margin: 0;
   }
-  
-  code {
-    background: #FFF;
-    padding: 0.2rem 0.4rem;
-    border-radius: 3px;
-    font-size: 0.85rem;
-  }
 `;
 
+// ============================================
+// CLOUDINARY DIRECT UPLOAD FUNCTION
+// ============================================
+async function uploadToCloudinary(file, cloudName, uploadPreset, folder, onProgress) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', uploadPreset);
+  formData.append('folder', folder);
+  
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    
+    xhr.upload.addEventListener('progress', (e) => {
+      if (e.lengthComputable) {
+        const progress = Math.round((e.loaded / e.total) * 100);
+        onProgress?.(progress);
+      }
+    });
+    
+    xhr.addEventListener('load', () => {
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        resolve({
+          url: response.secure_url,
+          publicId: response.public_id,
+          width: response.width,
+          height: response.height,
+        });
+      } else {
+        reject(new Error('Upload fehlgeschlagen'));
+      }
+    });
+    
+    xhr.addEventListener('error', () => {
+      reject(new Error('Netzwerkfehler'));
+    });
+    
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`);
+    xhr.send(formData);
+  });
+}
+
+// ============================================
+// PHOTO UPLOAD COMPONENT
+// ============================================
 function PhotoUpload({ content = {} }) {
   const { projectId, project } = useWedding();
   
@@ -265,41 +349,25 @@ function PhotoUpload({ content = {} }) {
   const description = content.description || 'Teilt eure schönsten Momente mit uns!';
   const maxFiles = content.max_files || 10;
   
-  // Cloudinary config from project settings (or env)
+  // Cloudinary config
   const cloudName = project?.settings?.cloudinary_cloud_name || process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || '';
   const uploadPreset = project?.settings?.cloudinary_upload_preset || process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '';
-  const folder = `iverlasting/${project?.slug || 'uploads'}/photos`;
+  const folder = `iverlasting/${project?.slug || 'uploads'}/guest-photos`;
   
   const [visible, setVisible] = useState(false);
-  const [uploadedPhotos, setUploadedPhotos] = useState([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [files, setFiles] = useState([]); // { id, file, preview, progress, status, cloudinaryUrl, publicId }
   const [uploaderName, setUploaderName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [saving, setSaving] = useState(false);
+  
   const sectionRef = useRef(null);
+  const inputRef = useRef(null);
+  const fileIdCounter = useRef(0);
   
   const isConfigured = cloudName && uploadPreset;
 
-  // Cloudinary Upload Hook
-  const { openWidget, isReady } = useCloudinaryUpload({
-    cloudName,
-    uploadPreset,
-    folder,
-    maxFiles,
-    sources: ['local', 'camera'],
-    multiple: true,
-    onSuccess: (result) => {
-      setUploadedPhotos(prev => [...prev, {
-        url: result.url,
-        publicId: result.publicId,
-        thumbnailUrl: result.thumbnailUrl || result.url,
-      }]);
-    },
-    onError: (error) => {
-      console.error('Upload error:', error);
-      alert('Fehler beim Hochladen. Bitte versuche es erneut.');
-    },
-  });
-
+  // Intersection Observer for animation
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setVisible(true); },
@@ -309,54 +377,136 @@ function PhotoUpload({ content = {} }) {
     return () => observer.disconnect();
   }, []);
 
-  const handleOpenWidget = () => {
-    if (!isConfigured) {
-      alert('Cloudinary ist noch nicht konfiguriert.');
-      return;
+  // Handle file selection
+  const handleFiles = useCallback(async (selectedFiles) => {
+    if (!isConfigured) return;
+    
+    const validFiles = Array.from(selectedFiles)
+      .filter(file => file.type.startsWith('image/'))
+      .slice(0, maxFiles - files.length);
+    
+    if (validFiles.length === 0) return;
+    
+    // Create file entries with previews
+    const newFiles = validFiles.map(file => {
+      const id = ++fileIdCounter.current;
+      return {
+        id,
+        file,
+        preview: URL.createObjectURL(file),
+        progress: 0,
+        status: 'pending', // pending, uploading, done, error
+        cloudinaryUrl: null,
+        publicId: null,
+      };
+    });
+    
+    setFiles(prev => [...prev, ...newFiles]);
+    
+    // Start uploading each file
+    for (const fileEntry of newFiles) {
+      try {
+        setFiles(prev => prev.map(f => 
+          f.id === fileEntry.id ? { ...f, status: 'uploading' } : f
+        ));
+        
+        const result = await uploadToCloudinary(
+          fileEntry.file,
+          cloudName,
+          uploadPreset,
+          folder,
+          (progress) => {
+            setFiles(prev => prev.map(f => 
+              f.id === fileEntry.id ? { ...f, progress } : f
+            ));
+          }
+        );
+        
+        setFiles(prev => prev.map(f => 
+          f.id === fileEntry.id ? { 
+            ...f, 
+            status: 'done', 
+            progress: 100,
+            cloudinaryUrl: result.url,
+            publicId: result.publicId,
+          } : f
+        ));
+      } catch (error) {
+        console.error('Upload error:', error);
+        setFiles(prev => prev.map(f => 
+          f.id === fileEntry.id ? { ...f, status: 'error' } : f
+        ));
+      }
     }
-    if (isReady) {
-      openWidget();
-    } else {
-      alert('Upload-Widget wird geladen...');
-    }
-  };
+  }, [cloudName, uploadPreset, folder, files.length, maxFiles, isConfigured]);
 
-  const removePhoto = (index) => {
-    setUploadedPhotos(prev => prev.filter((_, i) => i !== index));
-  };
+  // Drag & Drop handlers
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    handleFiles(e.dataTransfer.files);
+  }, [handleFiles]);
+
+  const handleInputChange = useCallback((e) => {
+    handleFiles(e.target.files);
+    e.target.value = ''; // Reset input
+  }, [handleFiles]);
+
+  const handleRemove = useCallback((id) => {
+    setFiles(prev => {
+      const file = prev.find(f => f.id === id);
+      if (file?.preview) {
+        URL.revokeObjectURL(file.preview);
+      }
+      return prev.filter(f => f.id !== id);
+    });
+  }, []);
 
   const handleSubmit = async () => {
-    if (uploadedPhotos.length === 0) {
-      alert('Bitte lade mindestens ein Foto hoch.');
-      return;
-    }
+    const completedFiles = files.filter(f => f.status === 'done');
+    if (completedFiles.length === 0) return;
     
-    setSaving(true);
+    setIsSubmitting(true);
     
     try {
-      // Save each photo to Supabase
-      for (const photo of uploadedPhotos) {
+      for (const file of completedFiles) {
         await submitPhotoUpload(projectId, {
           uploadedBy: uploaderName || 'Anonym',
-          cloudinaryUrl: photo.url,
-          cloudinaryPublicId: photo.publicId,
+          cloudinaryUrl: file.cloudinaryUrl,
+          cloudinaryPublicId: file.publicId,
         });
       }
-      
       setSubmitted(true);
     } catch (error) {
-      console.error('Error saving photos:', error);
+      console.error('Error saving:', error);
       alert('Fehler beim Speichern. Bitte versuche es erneut.');
     } finally {
-      setSaving(false);
+      setIsSubmitting(false);
     }
   };
 
   const handleReset = () => {
-    setUploadedPhotos([]);
+    files.forEach(f => {
+      if (f.preview) URL.revokeObjectURL(f.preview);
+    });
+    setFiles([]);
     setUploaderName('');
     setSubmitted(false);
   };
+
+  const completedCount = files.filter(f => f.status === 'done').length;
+  const uploadingCount = files.filter(f => f.status === 'uploading').length;
+  const canSubmit = completedCount > 0 && uploadingCount === 0;
 
   if (submitted) {
     return (
@@ -366,7 +516,7 @@ function PhotoUpload({ content = {} }) {
             <SuccessIcon>📸</SuccessIcon>
             <SuccessTitle>Vielen Dank!</SuccessTitle>
             <SuccessText>
-              {uploadedPhotos.length} {uploadedPhotos.length === 1 ? 'Foto wurde' : 'Fotos wurden'} hochgeladen.
+              {completedCount} {completedCount === 1 ? 'Foto wurde' : 'Fotos wurden'} hochgeladen.
               {content.moderation !== false && ' Nach Freigabe erscheinen sie in der Galerie.'}
             </SuccessText>
             <ResetButton onClick={handleReset}>
@@ -389,44 +539,72 @@ function PhotoUpload({ content = {} }) {
         
         {!isConfigured && (
           <ConfigNotice>
-            <p>
-              ⚠️ Cloudinary ist noch nicht konfiguriert.<br />
-              Setze <code>REACT_APP_CLOUDINARY_CLOUD_NAME</code> und <code>REACT_APP_CLOUDINARY_UPLOAD_PRESET</code> in den Umgebungsvariablen.
-            </p>
+            <p>⚠️ Foto-Upload ist noch nicht konfiguriert.</p>
           </ConfigNotice>
         )}
         
-        <UploadArea onClick={handleOpenWidget}>
-          <UploadIcon>📷</UploadIcon>
-          <UploadText>
-            Klicke hier oder ziehe Fotos hierher
-          </UploadText>
-          <UploadButton type="button" disabled={!isConfigured}>
-            Fotos auswählen
-          </UploadButton>
-        </UploadArea>
+        <DropZone
+          $isDragging={isDragging}
+          $hasFiles={files.length > 0}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={() => inputRef.current?.click()}
+        >
+          <DropZoneIcon>
+            {isDragging ? '📥' : files.length > 0 ? '✅' : '📷'}
+          </DropZoneIcon>
+          <DropZoneText>
+            {isDragging 
+              ? 'Fotos hier ablegen...' 
+              : files.length > 0 
+                ? `${files.length} ${files.length === 1 ? 'Foto' : 'Fotos'} ausgewählt`
+                : 'Fotos hierher ziehen oder klicken'
+            }
+          </DropZoneText>
+          <DropZoneSubtext>
+            JPG, PNG, HEIC · Max. {maxFiles} Fotos
+          </DropZoneSubtext>
+          
+          <HiddenInput
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleInputChange}
+            disabled={!isConfigured}
+          />
+        </DropZone>
         
-        {uploadedPhotos.length > 0 && (
-          <UploadedPhotos>
-            <PhotosHeader>
-              <PhotosTitle>Ausgewählte Fotos</PhotosTitle>
-              <PhotoCount>{uploadedPhotos.length} / {maxFiles}</PhotoCount>
-            </PhotosHeader>
-            
-            <PhotosGrid>
-              {uploadedPhotos.map((photo, index) => (
-                <PhotoItem key={photo.publicId || index} $url={photo.thumbnailUrl || photo.url}>
-                  <RemoveButton 
-                    className="remove-btn" 
-                    onClick={() => removePhoto(index)}
-                  >
-                    ×
-                  </RemoveButton>
-                </PhotoItem>
+        {files.length > 0 && (
+          <>
+            <PreviewGrid>
+              {files.map(file => (
+                <PreviewItem key={file.id}>
+                  <PreviewImage src={file.preview} alt="" />
+                  
+                  {file.status === 'uploading' && (
+                    <UploadProgress>
+                      <UploadProgressBar $progress={file.progress} />
+                    </UploadProgress>
+                  )}
+                  
+                  <UploadStatus $status={file.status}>
+                    {file.status === 'done' && '✓'}
+                    {file.status === 'error' && '!'}
+                    {file.status === 'uploading' && '↑'}
+                  </UploadStatus>
+                  
+                  <PreviewOverlay>
+                    <RemoveButton onClick={() => handleRemove(file.id)}>
+                      ×
+                    </RemoveButton>
+                  </PreviewOverlay>
+                </PreviewItem>
               ))}
-            </PhotosGrid>
+            </PreviewGrid>
             
-            <div style={{ marginTop: '2rem' }}>
+            <FormSection>
               <NameInput
                 type="text"
                 placeholder="Euer Name (optional)"
@@ -434,15 +612,19 @@ function PhotoUpload({ content = {} }) {
                 onChange={(e) => setUploaderName(e.target.value)}
               />
               
-              <UploadButton 
-                onClick={handleSubmit} 
-                disabled={saving || uploadedPhotos.length === 0}
-                style={{ width: '100%' }}
+              <SubmitButton
+                onClick={handleSubmit}
+                disabled={!canSubmit || isSubmitting}
               >
-                {saving ? 'Wird gespeichert...' : `${uploadedPhotos.length} ${uploadedPhotos.length === 1 ? 'Foto' : 'Fotos'} absenden`}
-              </UploadButton>
-            </div>
-          </UploadedPhotos>
+                {isSubmitting 
+                  ? 'Wird gespeichert...' 
+                  : uploadingCount > 0 
+                    ? `${uploadingCount} ${uploadingCount === 1 ? 'Foto wird' : 'Fotos werden'} hochgeladen...`
+                    : `${completedCount} ${completedCount === 1 ? 'Foto' : 'Fotos'} absenden`
+                }
+              </SubmitButton>
+            </FormSection>
+          </>
         )}
       </Container>
     </Section>

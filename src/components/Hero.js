@@ -50,7 +50,17 @@ const Section = styled.section`
   justify-content: center;
   position: relative;
   overflow: hidden;
-  background: #FFFFFF;
+  background: ${p => p.$backgroundImage ? `url(${p.$backgroundImage}) center/cover` : '#FFFFFF'};
+  
+  ${p => p.$backgroundImage && `
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.85);
+      z-index: 1;
+    }
+  `}
 `;
 
 const IncludedBadge = styled.div`
@@ -236,10 +246,11 @@ function Hero({
   date = '15. August 2025',
   location = 'Schloss Heidelberg',
   eyebrow = 'Wir heiraten',
+  backgroundImage = null,
   showBadge = false,
 }) {
   return (
-    <Section id="top">
+    <Section id="top" $backgroundImage={backgroundImage}>
       {showBadge && <IncludedBadge>Inklusive</IncludedBadge>}
       <BackgroundGrid />
       <BackgroundCircle />

@@ -237,27 +237,33 @@ export function useSlugDetection() {
   const [slug, setSlug] = useState(null);
 
   useEffect(() => {
-    // Try to get slug from URL path first (e.g., /wedding/sarahundiver)
+    // Try to get slug from URL path first (e.g., /demo, /wedding)
     const pathParts = window.location.pathname.split('/').filter(Boolean);
     
-    if (pathParts.length > 0 && pathParts[0] !== 'admin' && pathParts[0] !== 'save-the-date' && pathParts[0] !== 'archive') {
+    // Reserved paths that are not slugs
+    const reservedPaths = ['admin', 'std', 'archiv', 'preview'];
+    
+    if (pathParts.length > 0 && !reservedPaths.includes(pathParts[0])) {
       setSlug(pathParts[0]);
       return;
     }
 
-    // Otherwise use domain (e.g., sarahundiver.de)
-    const hostname = window.location.hostname;
-    
-    // Skip localhost and vercel preview URLs
-    if (hostname === 'localhost' || hostname.includes('vercel.app')) {
-      // For development, use a default slug or query param
-      const params = new URLSearchParams(window.location.search);
-      const slugParam = params.get('slug');
-      setSlug(slugParam || 'demo'); // 'demo' as fallback for development
+    // Check for slug query param (legacy support)
+    const params = new URLSearchParams(window.location.search);
+    const slugParam = params.get('slug');
+    if (slugParam) {
+      setSlug(slugParam);
       return;
     }
 
-    // Use the domain as identifier
+    // For localhost/vercel without slug → null (shows landing page)
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname.includes('vercel.app')) {
+      setSlug(null);
+      return;
+    }
+
+    // Use custom domain as identifier (e.g., sarahundiver.de)
     setSlug(hostname);
   }, []);
 
