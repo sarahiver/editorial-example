@@ -42,7 +42,7 @@ const NavDivider = styled.div`height: 1px; background: #F0F0F0; margin: 1rem 1.5
 const Main = styled.main`flex: 1; margin-left: 280px; padding: 2rem; @media (max-width: 968px) { margin-left: 0; }`;
 const Header = styled.header`display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid #E0E0E0;`;
 const PageTitle = styled.h1`font-family: 'Instrument Serif', serif; font-size: 1.75rem; font-weight: 400; span { font-style: italic; }`;
-const MobileMenuToggle = styled.button`display: none; position: fixed; top: 1rem; left: 1rem; z-index: 101; background: #FFF; border: 1px solid #E0E0E0; padding: 0.75rem; cursor: pointer; @media (max-width: 968px) { display: block; }`;
+const MobileMenuToggle = styled.button`display: none; position: fixed; top: 1rem; right: 1rem; z-index: 101; background: #FFF; border: 1px solid #E0E0E0; padding: 0.75rem; cursor: pointer; @media (max-width: 968px) { display: block; }`;
 
 const StatsGrid = styled.div`display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 2rem;`;
 const StatCard = styled.div`background: #FFF; border: 1px solid #E0E0E0; padding: 1.25rem; text-align: center;`;
