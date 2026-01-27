@@ -256,11 +256,12 @@ function Gifts({ content = {} }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedGift, setSelectedGift] = useState(null);
   const [reserverName, setReserverName] = useState('');
+  const [reservedGifts, setReservedGifts] = useState({}); // Track locally reserved gifts
   const sectionRef = useRef(null);
 
   const defaultGifts = [
-    { id: 1, title: 'Küchenmaschine', description: 'Für gemeinsame Backabenteuer.', cost: '599€', image: null, reserved: false },
-    { id: 2, title: 'Staubsauger', description: 'Für ein sauberes Zuhause.', cost: '649€', image: null, reserved: false },
+    { id: '1', title: 'Küchenmaschine', description: 'Für gemeinsame Backabenteuer.', cost: '599€', image: null, reserved: false },
+    { id: '2', title: 'Staubsauger', description: 'Für ein sauberes Zuhause.', cost: '649€', image: null, reserved: false },
   ];
 
   const items = giftItems.length > 0 ? giftItems : defaultGifts;
@@ -281,10 +282,27 @@ function Gifts({ content = {} }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Mark gift as reserved locally (name is optional)
+    setReservedGifts(prev => ({
+      ...prev,
+      [selectedGift.id]: reserverName || 'Anonym'
+    }));
+    
     // TODO: Implement gift reservation via Supabase
-    console.log('Reserving gift:', selectedGift, 'by:', reserverName);
+    console.log('Reserving gift:', selectedGift, 'by:', reserverName || 'Anonym');
+    
     setModalOpen(false);
     setReserverName('');
+  };
+  
+  // Check if gift is reserved (from content or locally)
+  const isGiftReserved = (gift) => {
+    return gift.reserved || reservedGifts[gift.id];
+  };
+  
+  const getReservedBy = (gift) => {
+    return reservedGifts[gift.id] || gift.reserved_by || 'Jemand';
   };
 
   return (
@@ -297,23 +315,26 @@ function Gifts({ content = {} }) {
         </Header>
         
         <Grid>
-          {items.map((gift, i) => (
-            <GiftCard key={gift.id || i} $index={i} $visible={visible} $reserved={gift.reserved}>
-              <GiftImage $image={gift.image} $reserved={gift.reserved} />
-              <GiftContent>
-                <GiftName $reserved={gift.reserved}>{gift.title}</GiftName>
-                <GiftDescription>{gift.description}</GiftDescription>
-                <GiftPrice $reserved={gift.reserved}>{gift.cost}</GiftPrice>
-                <ReserveButton 
-                  $reserved={gift.reserved} 
-                  onClick={() => !gift.reserved && handleReserve(gift)}
-                  disabled={gift.reserved}
-                >
-                  {gift.reserved ? `Reserviert von ${gift.reserved_by}` : 'Reservieren'}
-                </ReserveButton>
-              </GiftContent>
-            </GiftCard>
-          ))}
+          {items.map((gift, i) => {
+            const reserved = isGiftReserved(gift);
+            return (
+              <GiftCard key={gift.id || i} $index={i} $visible={visible} $reserved={reserved}>
+                <GiftImage $image={gift.image} $reserved={reserved} />
+                <GiftContent>
+                  <GiftName $reserved={reserved}>{gift.title}</GiftName>
+                  <GiftDescription>{gift.description}</GiftDescription>
+                  <GiftPrice $reserved={reserved}>{gift.cost}</GiftPrice>
+                  <ReserveButton 
+                    $reserved={reserved} 
+                    onClick={() => !reserved && handleReserve(gift)}
+                    disabled={reserved}
+                  >
+                    {reserved ? `Reserviert von ${getReservedBy(gift)}` : 'Reservieren'}
+                  </ReserveButton>
+                </GiftContent>
+              </GiftCard>
+            );
+          })}
         </Grid>
         
         <Modal $open={modalOpen} onClick={() => setModalOpen(false)}>
@@ -324,13 +345,12 @@ function Gifts({ content = {} }) {
             
             <form onSubmit={handleSubmit}>
               <FormGroup>
-                <Label>Euer Name *</Label>
+                <Label>Euer Name (optional)</Label>
                 <Input 
                   type="text" 
                   value={reserverName} 
                   onChange={e => setReserverName(e.target.value)} 
                   placeholder="Vor- und Nachname"
-                  required 
                 />
               </FormGroup>
               <SubmitButton type="submit">Jetzt reservieren</SubmitButton>

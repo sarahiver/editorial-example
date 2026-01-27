@@ -73,7 +73,7 @@ const BackgroundCircle = styled.div`
   height: 60vw;
   max-width: 800px;
   max-height: 800px;
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.08);
   border-radius: 50%;
   pointer-events: none;
 `;
@@ -178,6 +178,9 @@ const ScrollHint = styled.div`
     letter-spacing: 0.3em;
     text-transform: uppercase;
     color: #999;
+    text-align: center;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
   }
 `;
 

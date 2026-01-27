@@ -249,21 +249,19 @@ function RSVP({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [attending, setAttending] = useState(null);
+  const [guestCount, setGuestCount] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    guests: '1',
-    menu: '',
     allergies: '',
-    dietary: '',
     songWish: '',
     message: '',
   });
+  const [guestMenus, setGuestMenus] = useState(['']); // Array of menu choices per guest
   const sectionRef = useRef(null);
 
   // Get settings from content
-  const title = content.title || 'Seid ihr';
-  const titleAccent = 'dabei?';
+  const title = content.title || 'Seid ihr dabei?';
   const subtitle = content.description || 'Bitte lasst uns wissen, ob ihr kommen könnt.';
   const askDietary = content.ask_dietary !== false;
   const askAllergies = content.ask_allergies !== false;
@@ -280,22 +278,44 @@ function RSVP({
     return () => observer.disconnect();
   }, []);
 
+  // Update guest menus array when count changes
+  const handleGuestCountChange = (newCount) => {
+    setGuestCount(newCount);
+    const newMenus = [...guestMenus];
+    while (newMenus.length < newCount) newMenus.push('');
+    while (newMenus.length > newCount) newMenus.pop();
+    setGuestMenus(newMenus);
+  };
+
+  const handleMenuChange = (index, value) => {
+    const newMenus = [...guestMenus];
+    newMenus[index] = value;
+    setGuestMenus(newMenus);
+  };
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Store scroll position
+    const scrollY = window.scrollY;
+    
     setIsSubmitting(true);
     setError(null);
 
     try {
+      // Combine all menu choices into one string
+      const menuChoices = guestMenus.map((menu, i) => `Person ${i + 1}: ${menu || 'Keine Angabe'}`).join('; ');
+      
       const rsvpData = {
         name: formData.name,
         email: formData.email,
-        persons: parseInt(formData.guests, 10),
+        persons: guestCount,
         attending: attending === 'yes',
-        dietary: formData.dietary || formData.menu,
+        dietary: menuChoices,
         allergies: formData.allergies,
         songWish: formData.songWish,
         message: formData.message,
@@ -308,6 +328,11 @@ function RSVP({
       }
 
       setSubmitted(true);
+      
+      // Restore scroll position after state update
+      requestAnimationFrame(() => {
+        window.scrollTo(0, scrollY);
+      });
     } catch (err) {
       console.error('RSVP submission error:', err);
       setError('Es gab einen Fehler beim Absenden. Bitte versuche es erneut.');
@@ -341,7 +366,7 @@ function RSVP({
       <Container>
         <Header>
           <Eyebrow $visible={visible}>RSVP</Eyebrow>
-          <Title $visible={visible}>{title} <span>{titleAccent}</span></Title>
+          <Title $visible={visible}>{title}</Title>
           <Subtitle $visible={visible}>{subtitle}</Subtitle>
         </Header>
         
@@ -374,20 +399,22 @@ function RSVP({
             <>
               <FormGroup>
                 <Label>Anzahl Gäste</Label>
-                <Select name="guests" value={formData.guests} onChange={handleChange}>
+                <Select value={guestCount} onChange={(e) => handleGuestCountChange(parseInt(e.target.value, 10))}>
                   {Array.from({ length: maxPersons }, (_, i) => i + 1).map(n => (
                     <option key={n} value={n}>{n} {n === 1 ? 'Person' : 'Personen'}</option>
                   ))}
                 </Select>
               </FormGroup>
               
-              <FormGroup>
-                <Label>Menüwahl</Label>
-                <Select name="menu" value={formData.menu} onChange={handleChange}>
-                  <option value="">Bitte auswählen</option>
-                  {menuOptions.map((opt, i) => <option key={i} value={opt}>{opt}</option>)}
-                </Select>
-              </FormGroup>
+              {guestMenus.map((menu, index) => (
+                <FormGroup key={index}>
+                  <Label>Menüwahl {guestCount > 1 ? `Person ${index + 1}` : ''}</Label>
+                  <Select value={menu} onChange={(e) => handleMenuChange(index, e.target.value)}>
+                    <option value="">Bitte auswählen</option>
+                    {menuOptions.map((opt, i) => <option key={i} value={opt}>{opt}</option>)}
+                  </Select>
+                </FormGroup>
+              ))}
               
               <FormGroup>
                 <Label>Allergien / Unverträglichkeiten</Label>
