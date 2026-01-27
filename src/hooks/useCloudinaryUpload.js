@@ -1,5 +1,5 @@
 // src/hooks/useCloudinaryUpload.js
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 
 /**
  * Cloudinary Upload Hook
@@ -27,6 +27,18 @@ export function useCloudinaryUpload({
   onClose,
 }) {
   const widgetRef = useRef(null);
+  
+  // Store callbacks in refs to avoid recreating widget
+  const onSuccessRef = useRef(onSuccess);
+  const onErrorRef = useRef(onError);
+  const onCloseRef = useRef(onClose);
+  
+  // Update refs when callbacks change
+  useEffect(() => {
+    onSuccessRef.current = onSuccess;
+    onErrorRef.current = onError;
+    onCloseRef.current = onClose;
+  }, [onSuccess, onError, onClose]);
 
   const isReady = typeof window !== 'undefined' && window.cloudinary;
 
@@ -113,7 +125,7 @@ export function useCloudinaryUpload({
       (error, result) => {
         if (error) {
           console.error('Cloudinary upload error:', error);
-          onError?.(error);
+          onErrorRef.current?.(error);
           return;
         }
 
@@ -128,30 +140,32 @@ export function useCloudinaryUpload({
             bytes: result.info.bytes,
             originalFilename: result.info.original_filename,
           };
-          onSuccess?.(uploadInfo);
+          onSuccessRef.current?.(uploadInfo);
         }
 
         if (result.event === 'close') {
-          onClose?.();
+          onCloseRef.current?.();
         }
       }
     );
 
     return widget;
-  }, [cloudName, uploadPreset, folder, sources, multiple, maxFiles, resourceType, cropping, onSuccess, onError, onClose]);
+  }, [cloudName, uploadPreset, folder, sources, multiple, maxFiles, resourceType, cropping]);
 
   const openWidget = useCallback(() => {
-    if (!widgetRef.current) {
-      widgetRef.current = createWidget();
+    // Always create a fresh widget to ensure correct maxFiles
+    if (widgetRef.current) {
+      widgetRef.current.destroy();
     }
+    widgetRef.current = createWidget();
     
     if (widgetRef.current) {
       widgetRef.current.open();
     } else {
       console.error('Failed to create Cloudinary widget');
-      onError?.({ message: 'Widget konnte nicht geladen werden' });
+      onErrorRef.current?.({ message: 'Widget konnte nicht geladen werden' });
     }
-  }, [createWidget, onError]);
+  }, [createWidget]);
 
   const destroyWidget = useCallback(() => {
     if (widgetRef.current) {

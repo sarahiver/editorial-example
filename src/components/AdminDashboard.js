@@ -255,15 +255,19 @@ function CloudinaryMultiUpload({
   uploadPreset,
   maxImages = 20,
 }) {
+  const onAddRef = React.useRef(onAdd);
+  onAddRef.current = onAdd;
+  
   const { openWidget, isReady } = useCloudinaryUpload({
     cloudName,
     uploadPreset,
     folder,
-    maxFiles: maxImages - images.length,
+    maxFiles: maxImages,
     multiple: true,
     sources: ['local', 'url'],
     onSuccess: (result) => {
-      onAdd({ url: result.url, publicId: result.publicId });
+      // Use ref to always get latest callback
+      onAddRef.current({ url: result.url, publicId: result.publicId });
     },
     onError: (error) => {
       console.error('Upload error:', error);
