@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
+import { submitRSVP } from '../lib/supabase';
 
 const Section = styled.section`
   padding: 8rem 2rem;
@@ -238,15 +240,14 @@ const SuccessText = styled.p`
 `;
 
 function RSVP({
-  title = 'Seid ihr',
-  titleAccent = 'dabei?',
-  subtitle = 'Bitte lasst uns bis zum 15. Juni wissen, ob ihr kommen könnt.',
-  menuOptions = ['Fleisch', 'Fisch', 'Vegetarisch', 'Vegan'],
-  onSubmit,
+  content = {},
   showBadge = false,
 }) {
+  const { projectId } = useWedding();
   const [visible, setVisible] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
   const [attending, setAttending] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -254,9 +255,21 @@ function RSVP({
     guests: '1',
     menu: '',
     allergies: '',
+    dietary: '',
+    songWish: '',
     message: '',
   });
   const sectionRef = useRef(null);
+
+  // Get settings from content
+  const title = content.title || 'Seid ihr';
+  const titleAccent = 'dabei?';
+  const subtitle = content.description || 'Bitte lasst uns wissen, ob ihr kommen könnt.';
+  const askDietary = content.ask_dietary !== false;
+  const askAllergies = content.ask_allergies !== false;
+  const askSongWish = content.ask_song_wish || false;
+  const maxPersons = content.persons || 5;
+  const menuOptions = ['Fleisch', 'Fisch', 'Vegetarisch', 'Vegan'];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -273,9 +286,34 @@ function RSVP({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = { ...formData, attending };
-    if (onSubmit) await onSubmit(data);
-    setSubmitted(true);
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const rsvpData = {
+        name: formData.name,
+        email: formData.email,
+        persons: parseInt(formData.guests, 10),
+        attending: attending === 'yes',
+        dietary: formData.dietary || formData.menu,
+        allergies: formData.allergies,
+        songWish: formData.songWish,
+        message: formData.message,
+      };
+
+      const { error: submitError } = await submitRSVP(projectId, rsvpData);
+      
+      if (submitError) {
+        throw new Error(submitError.message);
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error('RSVP submission error:', err);
+      setError('Es gab einen Fehler beim Absenden. Bitte versuche es erneut.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -337,7 +375,7 @@ function RSVP({
               <FormGroup>
                 <Label>Anzahl Gäste</Label>
                 <Select name="guests" value={formData.guests} onChange={handleChange}>
-                  {[1, 2, 3, 4, 5].map(n => (
+                  {Array.from({ length: maxPersons }, (_, i) => i + 1).map(n => (
                     <option key={n} value={n}>{n} {n === 1 ? 'Person' : 'Personen'}</option>
                   ))}
                 </Select>
@@ -363,7 +401,15 @@ function RSVP({
             <TextArea name="message" value={formData.message} onChange={handleChange} placeholder="Möchtest du uns noch etwas mitteilen?" />
           </FormGroup>
           
-          <SubmitButton type="submit" disabled={attending === null}>Absenden</SubmitButton>
+          {error && (
+            <div style={{ color: '#C62828', fontSize: '0.9rem', marginBottom: '1rem', textAlign: 'center' }}>
+              {error}
+            </div>
+          )}
+          
+          <SubmitButton type="submit" disabled={attending === null || isSubmitting}>
+            {isSubmitting ? 'Wird gesendet...' : 'Absenden'}
+          </SubmitButton>
         </Form>
       </Container>
     </Section>

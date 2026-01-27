@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
+import { submitGuestbookEntry, getGuestbookEntries } from '../lib/supabase';
 
 const Section = styled.section`
   padding: 8rem 2rem;
@@ -190,18 +192,40 @@ const EmptyText = styled.p`
   color: #999;
 `;
 
-function Guestbook({ title = 'Gäste', titleAccent = 'buch', subtitle = 'Hinterlasst uns einen lieben Gruß oder Wunsch für unsere gemeinsame Zukunft.', entries = [], onSubmit }) {
+function Guestbook({ content = {} }) {
+  const { projectId } = useWedding();
   const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState({ name: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [entries, setEntries] = useState([]);
+  const [error, setError] = useState(null);
   const sectionRef = useRef(null);
 
-  const defaultEntries = [
-    { name: 'Anna & Peter', message: 'Wir wünschen euch von ganzem Herzen alles Glück dieser Welt! Möge eure Liebe immer so stark bleiben wie am ersten Tag.', date: '12. Mai 2025' },
-    { name: 'Familie Müller', message: 'Herzlichen Glückwunsch zur Hochzeit! Wir freuen uns so sehr für euch beide.', date: '10. Mai 2025' },
-  ];
+  const title = content.title || 'Gäste';
+  const titleAccent = 'buch';
+  const subtitle = content.description || 'Hinterlasst uns einen lieben Gruß oder Wunsch für unsere gemeinsame Zukunft.';
 
-  const items = entries.length > 0 ? entries : defaultEntries;
+  // Load entries from Supabase
+  useEffect(() => {
+    async function loadEntries() {
+      if (!projectId) return;
+      const { data } = await getGuestbookEntries(projectId, true);
+      if (data) {
+        const formattedEntries = data.map(entry => ({
+          name: entry.name,
+          message: entry.message,
+          date: new Date(entry.created_at).toLocaleDateString('de-DE', { 
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric' 
+          }),
+        }));
+        setEntries(formattedEntries);
+      }
+    }
+    loadEntries();
+  }, [projectId, submitted]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -214,11 +238,31 @@ function Guestbook({ title = 'Gäste', titleAccent = 'buch', subtitle = 'Hinterl
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (onSubmit) await onSubmit(formData);
-    setFormData({ name: '', message: '' });
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const { error: submitError } = await submitGuestbookEntry(projectId, {
+        name: formData.name,
+        message: formData.message,
+      });
+
+      if (submitError) {
+        throw new Error(submitError.message);
+      }
+
+      setFormData({ name: '', message: '' });
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 3000);
+    } catch (err) {
+      console.error('Guestbook submission error:', err);
+      setError('Es gab einen Fehler. Bitte versuche es erneut.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  const items = entries;
 
   return (
     <Section ref={sectionRef} id="guestbook">
@@ -240,7 +284,14 @@ function Guestbook({ title = 'Gäste', titleAccent = 'buch', subtitle = 'Hinterl
             <Label>Eure Nachricht *</Label>
             <TextArea value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} placeholder="Schreibt uns eure Glückwünsche..." required />
           </FormGroup>
-          <SubmitButton type="submit">{submitted ? '✓ Gesendet!' : 'Eintragen'}</SubmitButton>
+          {error && (
+            <div style={{ color: '#C62828', fontSize: '0.9rem', marginBottom: '1rem', textAlign: 'center' }}>
+              {error}
+            </div>
+          )}
+          <SubmitButton type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Wird gesendet...' : submitted ? '✓ Gesendet!' : 'Eintragen'}
+          </SubmitButton>
         </Form>
         
         {items.length > 0 ? (

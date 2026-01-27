@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
+import { submitMusicWish, getMusicWishes } from '../lib/supabase';
 
 const Section = styled.section`
   padding: 8rem 2rem;
@@ -202,25 +204,38 @@ const StatLabel = styled.div`
   color: #666;
 `;
 
-function MusicWishes({
-  title = 'Musik',
-  titleAccent = 'wünsche',
-  subtitle = 'Welcher Song bringt euch garantiert auf die Tanzfläche? Verratet es uns!',
-  wishes = [],
-  onSubmit,
-}) {
+function MusicWishes({ content = {} }) {
+  const { projectId } = useWedding();
   const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState({ name: '', song: '', artist: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [wishes, setWishes] = useState([]);
+  const [error, setError] = useState(null);
   const sectionRef = useRef(null);
 
-  const defaultWishes = [
-    { song: 'Shut Up and Dance', artist: 'Walk The Moon', by: 'Anna' },
-    { song: 'Uptown Funk', artist: 'Bruno Mars', by: 'Thomas' },
-    { song: 'I Wanna Dance with Somebody', artist: 'Whitney Houston', by: 'Lisa' },
-  ];
+  const title = content.title || 'Musik';
+  const titleAccent = 'wünsche';
+  const subtitle = content.description || 'Welcher Song bringt euch garantiert auf die Tanzfläche? Verratet es uns!';
 
-  const items = wishes.length > 0 ? wishes : defaultWishes;
+  // Load wishes from Supabase
+  useEffect(() => {
+    async function loadWishes() {
+      if (!projectId) return;
+      const { data } = await getMusicWishes(projectId);
+      if (data) {
+        const formattedWishes = data.map(wish => ({
+          song: wish.song_title,
+          artist: wish.artist,
+          by: wish.name,
+        }));
+        setWishes(formattedWishes);
+      }
+    }
+    loadWishes();
+  }, [projectId, submitted]);
+
+  const items = wishes;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -233,10 +248,29 @@ function MusicWishes({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (onSubmit) await onSubmit(formData);
-    setFormData({ name: '', song: '', artist: '' });
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const { error: submitError } = await submitMusicWish(projectId, {
+        name: formData.name,
+        artist: formData.artist,
+        songTitle: formData.song,
+      });
+
+      if (submitError) {
+        throw new Error(submitError.message);
+      }
+
+      setFormData({ name: '', song: '', artist: '' });
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 3000);
+    } catch (err) {
+      console.error('Music wish submission error:', err);
+      setError('Es gab einen Fehler. Bitte versuche es erneut.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -263,7 +297,14 @@ function MusicWishes({
             <Label>Euer Name *</Label>
             <Input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Vor- und Nachname" required />
           </FormGroup>
-          <SubmitButton type="submit">{submitted ? '✓ Hinzugefügt!' : 'Song hinzufügen'}</SubmitButton>
+          {error && (
+            <div style={{ color: '#ff6b6b', fontSize: '0.9rem', marginBottom: '1rem', textAlign: 'center' }}>
+              {error}
+            </div>
+          )}
+          <SubmitButton type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Wird gesendet...' : submitted ? '✓ Hinzugefügt!' : 'Song hinzufügen'}
+          </SubmitButton>
         </Form>
         
         <WishList>

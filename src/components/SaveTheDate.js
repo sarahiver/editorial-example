@@ -1,5 +1,6 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
 
 const fadeInUp = keyframes`
   from { opacity: 0; transform: translateY(30px); }
@@ -251,13 +252,23 @@ const ScrollLine = styled.div`
   }
 `;
 
-function SaveTheDate({ config = {} }) {
-  const {
-    name1 = "Pauli",
-    name2 = "Mo",
-    weddingDateDisplay = "August 15, 2026",
-    location = "Villa Aurora",
-  } = config;
+function SaveTheDate() {
+  const { coupleNames, weddingDate, content } = useWedding();
+  const stdContent = content?.savethedate || {};
+  
+  const names = coupleNames?.split('&') || ['Name', 'Name'];
+  const name1 = names[0]?.trim() || 'Name';
+  const name2 = names[1]?.trim() || 'Name';
+  
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+  
+  const displayDate = formatDate(weddingDate);
+  const location = stdContent.location_teaser || '';
+  const message = stdContent.message || 'Wir freuen uns, diesen besonderen Tag mit euch zu teilen. Bitte merkt euch den Termin vor — die offizielle Einladung folgt.';
 
   return (
     <Page>
@@ -278,13 +289,12 @@ function SaveTheDate({ config = {} }) {
         <Divider />
         
         <DateDisplay>
-          <DateMain><span>{weddingDateDisplay}</span></DateMain>
+          <DateMain><span>{displayDate}</span></DateMain>
           <Location>{location}</Location>
         </DateDisplay>
         
         <Message>
-          We're thrilled to share our special day with you. 
-          Please mark your calendar — formal invitation to follow.
+          {message}
         </Message>
         
         <CTAButton href="/">View Website</CTAButton>

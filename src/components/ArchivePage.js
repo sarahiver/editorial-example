@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
+import { getGuestbookEntries, getPhotoUploads } from '../lib/supabase';
 
 const fadeInUp = keyframes`
   from { opacity: 0; transform: translateY(30px); }
@@ -291,21 +293,41 @@ const FooterHashtag = styled.p`
   color: #999;
 `;
 
-function ArchivePage({ config = {} }) {
-  const {
-    coupleName = "Pauli & Mo",
-    name1 = "Pauli",
-    name2 = "Mo",
-    weddingDateDisplay = "August 15, 2026",
-    location = "Villa Aurora",
-    hashtag = "#PauliAndMo2026",
-  } = config;
+function ArchivePage() {
+  const { coupleNames, weddingDate, content, projectId } = useWedding();
+  const archiveContent = content?.archive || {};
+  
+  const names = coupleNames?.split('&') || ['Name', 'Name'];
+  const name1 = names[0]?.trim() || 'Name';
+  const name2 = names[1]?.trim() || 'Name';
+  
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+  
+  const displayDate = formatDate(weddingDate);
+  const location = content?.hero?.location_short || '';
+  const hashtag = content?.footer?.hashtag || '';
+  const thankYouTitle = archiveContent.thank_you_title || 'Danke!';
+  const thankYouText = archiveContent.thank_you_text || 'Danke, dass ihr Teil des schönsten Tages unseres Lebens wart.';
 
-  const [guestMessages] = useState([
-    { id: 1, message: "What an incredible celebration of love! We're so honored to have been part of your special day.", author: "Emma & Tom" },
-    { id: 2, message: "The most beautiful wedding we've ever attended. Wishing you a lifetime of happiness!", author: "The Rivera Family" },
-    { id: 3, message: "Thank you for letting us share in your joy. Here's to forever!", author: "Sophie Chen" },
-  ]);
+  const [guestMessages, setGuestMessages] = useState([]);
+  const [photos, setPhotos] = useState([]);
+
+  useEffect(() => {
+    async function loadData() {
+      if (!projectId) return;
+      const [guestbook, photoData] = await Promise.all([
+        getGuestbookEntries(projectId, true),
+        getPhotoUploads(projectId, true),
+      ]);
+      setGuestMessages(guestbook.data || []);
+      setPhotos(photoData.data || []);
+    }
+    loadData();
+  }, [projectId]);
 
   return (
     <Page>
@@ -313,16 +335,15 @@ function ArchivePage({ config = {} }) {
       <HeroSection>
         <BackgroundGrid />
         <HeroContent>
-          <Eyebrow>Our Wedding Day</Eyebrow>
+          <Eyebrow>{thankYouTitle}</Eyebrow>
           <Title>
             {name1} <span>&</span> {name2}
           </Title>
           <Subtitle>
-            Thank you for being part of the most magical day of our lives. 
-            Relive the memories and share your favorite moments.
+            {thankYouText}
           </Subtitle>
           <Divider />
-          <DateLocation>{weddingDateDisplay} · {location}</DateLocation>
+          <DateLocation>{displayDate} · {location}</DateLocation>
         </HeroContent>
       </HeroSection>
 
@@ -335,7 +356,9 @@ function ArchivePage({ config = {} }) {
           </SectionHeader>
           
           <GalleryGrid>
-            {[...Array(8)].map((_, i) => (
+            {photos.length > 0 ? photos.slice(0, 8).map((photo, i) => (
+              <GalleryItem key={photo.id} style={{ backgroundImage: `url(${photo.cloudinary_url})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+            )) : [...Array(8)].map((_, i) => (
               <GalleryItem key={i} />
             ))}
           </GalleryGrid>
