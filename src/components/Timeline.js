@@ -45,12 +45,12 @@ const Title = styled.h2`
 
 const TimelineWrapper = styled.div`
   position: relative;
-  padding-left: 85px;
+  padding-left: 100px;
   
   &::before {
     content: '';
     position: absolute;
-    left: 35px;
+    left: 50px;
     top: 0;
     bottom: 0;
     width: 1px;
@@ -58,8 +58,8 @@ const TimelineWrapper = styled.div`
   }
   
   @media (max-width: 600px) {
-    padding-left: 60px;
-    &::before { left: 25px; }
+    padding-left: 70px;
+    &::before { left: 35px; }
   }
 `;
 
@@ -76,9 +76,9 @@ const Event = styled.div`
 
 const Time = styled.div`
   position: absolute;
-  left: -85px;
+  left: -100px;
   top: 0;
-  width: 50px;
+  width: 40px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.75rem;
   letter-spacing: 0.05em;
@@ -86,16 +86,16 @@ const Time = styled.div`
   text-align: right;
   
   @media (max-width: 600px) {
-    left: -60px;
-    width: 35px;
+    left: -70px;
+    width: 28px;
     font-size: 0.65rem;
   }
 `;
 
 const Dot = styled.div`
   position: absolute;
-  left: -54px;
-  top: 2px;
+  left: -50px;
+  top: 4px;
   width: ${p => p.$highlight ? '12px' : '8px'};
   height: ${p => p.$highlight ? '12px' : '8px'};
   background: ${p => p.$highlight ? '#000' : '#FFF'};
@@ -103,7 +103,7 @@ const Dot = styled.div`
   border-radius: 50%;
   transform: translateX(-50%);
   
-  @media (max-width: 600px) { left: -39px; }
+  @media (max-width: 600px) { left: -35px; }
 `;
 
 const EventContent = styled.div``;

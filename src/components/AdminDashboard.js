@@ -248,7 +248,7 @@ function AdminDashboard() {
     setIsLoading(false);
   };
 
-  const handleLogin = (e) => { e.preventDefault(); loginPassword === ADMIN_PASSWORD ? (setIsLoggedIn(true), setLoginError('')) : setLoginError('Falsches Passwort'); };
+  const handleLogin = (e) => { e.preventDefault(); if (loginPassword === ADMIN_PASSWORD) { setIsLoggedIn(true); setLoginError(''); } else { setLoginError('Falsches Passwort'); } };
   const handleStatusChange = async (s) => { await updateProjectStatus(projectId, s); setCurrentStatus(s); };
   const handleApproveGuestbook = async (id, a) => { await approveGuestbookEntry(id, a); loadData(); };
   const handleDeleteGuestbook = async (id) => { if (window.confirm('Löschen?')) { await deleteGuestbookEntry(id); loadData(); } };

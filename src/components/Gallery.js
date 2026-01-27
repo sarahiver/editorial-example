@@ -216,13 +216,13 @@ function Gallery({ content = {} }) {
           <Placeholder>
             <PlaceholderText>Hier werden bald unsere gemeinsamen Fotos erscheinen.</PlaceholderText>
           </Placeholder>
-        )}}
+        )}
         
         <Lightbox $open={lightboxOpen} onClick={closeLightbox}>
           <LightboxClose onClick={closeLightbox}>×</LightboxClose>
           <LightboxNav $direction="prev" onClick={(e) => { e.stopPropagation(); navigate('prev'); }}>‹</LightboxNav>
-          {galleryImages[currentIndex]?.src && (
-            <LightboxImage src={galleryImages[currentIndex].src} alt={galleryImages[currentIndex].alt} onClick={(e) => e.stopPropagation()} />
+          {galleryImages[currentIndex]?.url && (
+            <LightboxImage src={galleryImages[currentIndex].url} alt={galleryImages[currentIndex].alt || `Bild ${currentIndex + 1}`} onClick={(e) => e.stopPropagation()} />
           )}
           <LightboxNav $direction="next" onClick={(e) => { e.stopPropagation(); navigate('next'); }}>›</LightboxNav>
         </Lightbox>

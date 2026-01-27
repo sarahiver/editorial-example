@@ -1,8 +1,8 @@
 // src/App.js
-import React, { createContext, useContext } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
 import EditorialGlobalStyles from './styles/GlobalStyles';
-import { WeddingProvider, useWedding } from './context/WeddingContext';
+import { WeddingProvider, DemoProvider, useWedding } from './context/WeddingContext';
 
 // Components
 import Navigation from './components/Navigation';
@@ -29,111 +29,6 @@ import Footer from './components/Footer';
 import AdminDashboard from './components/AdminDashboard';
 import SaveTheDate from './components/SaveTheDate';
 import ArchivePage from './components/ArchivePage';
-
-// ============================================
-// DEMO CONTEXT (für Seite ohne Slug)
-// ============================================
-const DemoContext = createContext(null);
-
-const demoContent = {
-  hero: { tagline: 'Wir heiraten', location_short: 'Hamburg', background_image: null },
-  countdown: { target_date: '2026-08-15T14:00:00', title: 'Noch', show_seconds: false },
-  lovestory: {
-    title: 'Unsere Geschichte',
-    subtitle: 'Wie alles begann',
-    events: [
-      { date: '2019', title: 'Das erste Treffen', description: 'Auf einer Party haben wir uns kennengelernt...', image: null },
-      { date: '2020', title: 'Der erste Urlaub', description: 'Zusammen nach Italien...', image: null },
-      { date: '2024', title: 'Die Verlobung', description: 'Am Strand bei Sonnenuntergang...', image: null },
-    ],
-  },
-  timeline: {
-    title: 'Ablauf',
-    subtitle: 'So feiern wir',
-    events: [
-      { time: '14:00', title: 'Trauung', description: 'Standesamt', icon: '💒' },
-      { time: '15:30', title: 'Sektempfang', description: 'Im Garten', icon: '🥂' },
-      { time: '18:00', title: 'Dinner', description: 'Im Festsaal', icon: '🍽️' },
-      { time: '21:00', title: 'Party', description: 'Bis in die Nacht', icon: '🎉' },
-    ],
-  },
-  locations: {
-    title: 'Die Locations',
-    locations: [
-      { type: 'Trauung', name: 'Standesamt Mitte', address: 'Musterstraße 1, 20095 Hamburg', time: '14:00 Uhr', image: null },
-      { type: 'Feier', name: 'Schloss Traumhaft', address: 'Parkweg 10, 22085 Hamburg', time: '15:30 Uhr', image: null },
-    ],
-  },
-  directions: { title: 'Anfahrt' },
-  rsvp: { title: 'RSVP', subtitle: 'Bitte gebt uns bis zum 1. Juni Bescheid', deadline: '2026-06-01' },
-  dresscode: {
-    title: 'Dresscode',
-    subtitle: 'Festlich elegant',
-    description: 'Wir freuen uns, wenn ihr in festlicher Kleidung erscheint.',
-    colors: ['#1a1a2e', '#16213e', '#e94560'],
-  },
-  gifts: {
-    title: 'Geschenke',
-    subtitle: 'Das größte Geschenk ist eure Anwesenheit',
-    description: 'Falls ihr uns dennoch etwas schenken möchtet...',
-    items: [
-      { name: 'Hochzeitsreise', description: 'Unterstützt unsere Flitterwochen', price: null, reserved: false },
-      { name: 'Küchenmaschine', description: 'Für gemeinsames Kochen', price: '€299', reserved: false },
-    ],
-  },
-  accommodations: {
-    title: 'Übernachtung',
-    description: 'Hier könnt ihr übernachten',
-    hotels: [
-      { name: 'Hotel Beispiel', distance: '500m', price_range: '€€', description: 'Direkt am Veranstaltungsort', url: '#', image: null },
-    ],
-  },
-  witnesses: { title: 'Trauzeugen' },
-  gallery: { title: 'Galerie', images: [] },
-  musicwishes: { title: 'Musikwünsche', subtitle: 'Welche Songs sollen auf keinen Fall fehlen?' },
-  guestbook: { title: 'Gästebuch', subtitle: 'Hinterlasst uns eine Nachricht' },
-  faq: {
-    title: 'FAQ',
-    subtitle: 'Häufige Fragen',
-    items: [
-      { question: 'Gibt es Parkplätze?', answer: 'Ja, ausreichend Parkplätze sind vorhanden.' },
-      { question: 'Sind Kinder willkommen?', answer: 'Natürlich! Wir freuen uns über alle Gäste.' },
-      { question: 'Gibt es vegetarisches Essen?', answer: 'Ja, bitte gebt dies bei der RSVP an.' },
-    ],
-  },
-  weddingabc: {
-    title: 'Hochzeits-ABC',
-    entries: [
-      { letter: 'A', title: 'Anfahrt', description: 'Beschreibung zur Anfahrt...' },
-      { letter: 'B', title: 'Blumen', description: 'Bitte keine Blumen mitbringen...' },
-    ],
-  },
-  photoupload: { title: 'Eure Fotos', description: 'Teilt eure schönsten Momente mit uns!', max_files: 10 },
-  footer: { names: 'Pauli & Mo', tagline: 'Wir freuen uns auf euch!', hashtag: '#PauliUndMo2026' },
-};
-
-function DemoProvider({ children }) {
-  const value = {
-    project: { id: 'demo', slug: '', status: 'live', couple_names: 'Pauli & Mo' },
-    content: demoContent,
-    isLoading: false,
-    error: null,
-    getContent: (name) => demoContent[name] || {},
-    isComponentActive: () => true, // All components active in demo
-    getCustomStyles: () => ({}),
-    status: 'live',
-    theme: 'editorial',
-    coupleNames: 'Pauli & Mo',
-    weddingDate: '2026-08-15',
-    slug: '',
-    projectId: null,
-  };
-
-  return <DemoContext.Provider value={value}>{children}</DemoContext.Provider>;
-}
-
-// Override useWedding for demo context
-const OriginalWeddingContext = require('./context/WeddingContext').default;
 
 // ============================================
 // LOADING & ERROR SCREENS
@@ -197,10 +92,10 @@ const ErrorScreen = ({ message }) => (
 );
 
 // ============================================
-// DEMO PAGE (ohne Slug)
+// DEMO PAGE (ohne Slug - nutzt DemoProvider)
 // ============================================
 const DemoPage = () => {
-  const ctx = useContext(DemoContext);
+  const { content } = useWedding();
   const navLinks = [
     { label: 'Unsere Geschichte', href: '#story' },
     { label: 'Ablauf', href: '#timeline' },
@@ -214,22 +109,22 @@ const DemoPage = () => {
       <Navigation coupleNames="Pauli & Mo" weddingDate="15. August 2026" links={navLinks} />
       <Hero name1="Pauli" name2="Mo" date="15. August 2026" location="Hamburg" eyebrow="Wir heiraten" />
       <Countdown weddingDate="2026-08-15T14:00:00" />
-      <LoveStory content={demoContent.lovestory} />
-      <Timeline content={demoContent.timeline} />
-      <Locations content={demoContent.locations} />
-      <Directions content={demoContent.directions} />
-      <RSVP content={demoContent.rsvp} />
-      <Dresscode content={demoContent.dresscode} />
-      <Gifts content={demoContent.gifts} />
-      <Accommodations content={demoContent.accommodations} />
-      <Contact content={demoContent.witnesses} />
-      <Gallery content={demoContent.gallery} />
-      <MusicWishes content={demoContent.musicwishes} />
-      <Guestbook content={demoContent.guestbook} />
-      <FAQ content={demoContent.faq} />
-      <WeddingABC content={demoContent.weddingabc} />
-      <PhotoUpload content={demoContent.photoupload} />
-      <Footer coupleNames="Pauli & Mo" content={demoContent.footer} />
+      <LoveStory content={content.lovestory} />
+      <Timeline content={content.timeline} />
+      <Locations content={content.locations} />
+      <Directions content={content.directions} />
+      <RSVP content={content.rsvp} />
+      <Dresscode content={content.dresscode} />
+      <Gifts content={content.gifts} />
+      <Accommodations content={content.accommodations} />
+      <Contact content={content.witnesses} />
+      <Gallery content={content.gallery} />
+      <MusicWishes content={content.musicwishes} />
+      <Guestbook content={content.guestbook} />
+      <FAQ content={content.faq} />
+      <WeddingABC content={content.weddingabc} />
+      <PhotoUpload content={content.photoupload} />
+      <Footer coupleNames="Pauli & Mo" content={content.footer} />
     </>
   );
 };
