@@ -273,7 +273,29 @@ function AdminDashboard() {
   };
 
   const togglePhoto = (id) => { const s = new Set(selectedPhotos); s.has(id) ? s.delete(id) : s.add(id); setSelectedPhotos(s); };
-  const downloadPhotos = async (photos) => { for (const p of photos) if (p.cloudinary_url) { const a = document.createElement('a'); a.href = p.cloudinary_url; a.download = `foto_${p.id}.jpg`; a.target = '_blank'; a.click(); await new Promise(r => setTimeout(r, 300)); } };
+  
+  const downloadPhotos = async (photos) => {
+    for (const p of photos) {
+      if (p.cloudinary_url) {
+        try {
+          // Fetch image as blob to force download
+          const response = await fetch(p.cloudinary_url);
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `foto_${p.id}.jpg`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+          await new Promise(r => setTimeout(r, 500));
+        } catch (e) {
+          console.error('Download failed:', e);
+        }
+      }
+    }
+  };
 
   const stats = { confirmed: rsvpData.filter(r => r.attending).length, declined: rsvpData.filter(r => !r.attending).length, guests: rsvpData.filter(r => r.attending).reduce((s, r) => s + (r.persons || 1), 0), pending: guestbookEntries.filter(e => !e.approved).length };
 
