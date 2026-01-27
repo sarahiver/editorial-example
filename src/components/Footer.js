@@ -254,7 +254,7 @@ const ErrorMessage = styled.p`
   margin-top: 1rem;
 `;
 
-function Footer({ coupleNames = 'Pauli & Mo', content = {}, showBadge = false }) {
+function Footer({ coupleNames = 'Pauli & Mo', content = {}, showBadge = false, slug = '' }) {
   const hashtag = content.hashtag || '';
   const tagline = content.tagline || 'Wir freuen uns auf euch!';
   
@@ -273,7 +273,9 @@ function Footer({ coupleNames = 'Pauli & Mo', content = {}, showBadge = false })
   const quickNavLinks = defaultQuickLinks;
 
   const handleAdminClick = () => {
-    window.location.href = '/admin';
+    // Use slug for admin link if available
+    const adminPath = slug ? `/${slug}/admin` : '/admin';
+    window.location.href = adminPath;
   };
 
   const year = new Date().getFullYear();

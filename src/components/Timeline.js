@@ -94,15 +94,16 @@ const Time = styled.div`
 
 const Dot = styled.div`
   position: absolute;
-  left: -55px;
-  top: 4px;
+  left: -54px;
+  top: 2px;
   width: ${p => p.$highlight ? '12px' : '8px'};
   height: ${p => p.$highlight ? '12px' : '8px'};
   background: ${p => p.$highlight ? '#000' : '#FFF'};
   border: 2px solid #000;
   border-radius: 50%;
+  transform: translateX(-50%);
   
-  @media (max-width: 600px) { left: -40px; }
+  @media (max-width: 600px) { left: -39px; }
 `;
 
 const EventContent = styled.div``;
