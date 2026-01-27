@@ -281,7 +281,8 @@ function Gifts({ content = {} }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (onReserve) await onReserve({ gift: selectedGift, reserverName });
+    // TODO: Implement gift reservation via Supabase
+    console.log('Reserving gift:', selectedGift, 'by:', reserverName);
     setModalOpen(false);
     setReserverName('');
   };

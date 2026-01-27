@@ -256,6 +256,7 @@ const ErrorMessage = styled.p`
 
 function Footer({ coupleNames = 'Sarah & Iver', content = {}, showBadge = false }) {
   const hashtag = content.hashtag || '';
+  const tagline = content.tagline || 'Wir freuen uns auf euch!';
   
   const defaultLinks = [
     { label: 'Unsere Geschichte', href: '#story' },

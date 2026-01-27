@@ -300,9 +300,8 @@ function PhotoUpload({ content = {} }) {
       setUploadProgress(i);
     }
     
-    if (onUpload) {
-      await onUpload(files);
-    }
+    // TODO: Implement Cloudinary upload
+    console.log('Uploading files:', files);
     
     setUploading(false);
     setSubmitted(true);
