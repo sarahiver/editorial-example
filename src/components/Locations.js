@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
 
 const Section = styled.section`
   padding: 8rem 2rem;
@@ -136,13 +137,16 @@ const MapLink = styled.a`
   &:hover { color: #666; border-color: #666; }
 `;
 
-function Locations({ title = 'Die', titleAccent = 'Locations', locations = [] }) {
+function Locations({ content = {} }) {
+  const title = content.title || 'Die Locations';
+  const locations = content.locations || [];
+  
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
   const defaultLocations = [
-    { type: 'Trauung', name: 'Schloss Heidelberg', address: 'Schlosshof 1, 69117 Heidelberg', time: '14:00 Uhr', image: null, mapUrl: 'https://maps.google.com' },
-    { type: 'Feier', name: 'Orangerie im Schlosspark', address: 'Schlosspark 5, 69117 Heidelberg', time: 'Ab 16:00 Uhr', image: null, mapUrl: 'https://maps.google.com' },
+    { type: 'Trauung', name: 'Schloss Heidelberg', address: 'Schlosshof 1, 69117 Heidelberg', time: '14:00 Uhr', image: null, maps_url: '#' },
+    { type: 'Feier', name: 'Orangerie', address: 'Schlosspark 5, 69117 Heidelberg', time: 'Ab 16:00 Uhr', image: null, maps_url: '#' },
   ];
 
   const items = locations.length > 0 ? locations : defaultLocations;
@@ -161,7 +165,7 @@ function Locations({ title = 'Die', titleAccent = 'Locations', locations = [] })
       <Container>
         <Header>
           <Eyebrow $visible={visible}>Wo wir feiern</Eyebrow>
-          <Title $visible={visible}>{title} <span>{titleAccent}</span></Title>
+          <Title $visible={visible}>{title}</Title>
         </Header>
         
         <Grid>
@@ -175,7 +179,7 @@ function Locations({ title = 'Die', titleAccent = 'Locations', locations = [] })
                 <LocationName>{loc.name}</LocationName>
                 <DetailRow><DetailIcon>📍</DetailIcon><DetailText>{loc.address}</DetailText></DetailRow>
                 <DetailRow><DetailIcon>🕐</DetailIcon><DetailText>{loc.time}</DetailText></DetailRow>
-                {loc.mapUrl && <MapLink href={loc.mapUrl} target="_blank" rel="noopener noreferrer">Route anzeigen →</MapLink>}
+                {loc.maps_url && <MapLink href={loc.maps_url} target="_blank" rel="noopener noreferrer">Route anzeigen →</MapLink>}
               </CardContent>
             </Card>
           ))}

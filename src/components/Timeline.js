@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
 
 const Section = styled.section`
   padding: 8rem 2rem;
@@ -154,17 +155,19 @@ const Note = styled.div`
   transition-delay: 0.5s;
 `;
 
-function Timeline({ title = 'Der', titleAccent = 'Tagesablauf', events = [], note = '' }) {
+function Timeline({ content = {} }) {
+  const title = content.title || 'Tagesablauf';
+  const events = content.events || [];
+  
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
   const defaultEvents = [
-    { time: '14:00', icon: '💒', title: 'Trauung', description: 'Die standesamtliche Trauung findet in der Schlosskapelle statt.', location: 'Schlosskapelle', highlight: true },
-    { time: '15:00', icon: '🥂', title: 'Sektempfang', description: 'Nach der Trauung stoßen wir gemeinsam an.', location: 'Schlossterrasse' },
-    { time: '16:30', icon: '📸', title: 'Gruppenfotos', description: 'Zeit für Erinnerungsfotos mit allen Gästen.', location: 'Schlossgarten' },
-    { time: '18:00', icon: '🍽️', title: 'Abendessen', description: 'Ein festliches Dinner erwartet euch.', location: 'Orangerie', highlight: true },
+    { time: '14:00', icon: '💒', title: 'Trauung', description: 'Die standesamtliche Trauung findet statt.', location: 'Kapelle' },
+    { time: '15:00', icon: '🥂', title: 'Sektempfang', description: 'Nach der Trauung stoßen wir gemeinsam an.', location: 'Terrasse' },
+    { time: '18:00', icon: '🍽️', title: 'Abendessen', description: 'Ein festliches Dinner erwartet euch.', location: 'Festsaal' },
     { time: '21:00', icon: '💃', title: 'Eröffnungstanz', description: 'Wir eröffnen das Tanzparkett.', location: 'Festsaal' },
-    { time: '22:00', icon: '🎉', title: 'Party', description: 'Lasst uns gemeinsam feiern bis in die Nacht!', location: 'Festsaal' },
+    { time: '22:00', icon: '🎉', title: 'Party', description: 'Lasst uns feiern!', location: 'Festsaal' },
   ];
 
   const items = events.length > 0 ? events : defaultEvents;
@@ -183,7 +186,7 @@ function Timeline({ title = 'Der', titleAccent = 'Tagesablauf', events = [], not
       <Container>
         <Header>
           <Eyebrow $visible={visible}>So läuft der Tag</Eyebrow>
-          <Title $visible={visible}>{title} <span>{titleAccent}</span></Title>
+          <Title $visible={visible}>{title}</Title>
         </Header>
         
         <TimelineWrapper>
@@ -200,8 +203,6 @@ function Timeline({ title = 'Der', titleAccent = 'Tagesablauf', events = [], not
             </Event>
           ))}
         </TimelineWrapper>
-        
-        {note && <Note $visible={visible}>{note}</Note>}
       </Container>
     </Section>
   );

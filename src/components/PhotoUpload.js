@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
 
 const Section = styled.section`
   padding: 8rem 2rem;
@@ -221,14 +222,12 @@ const ResetButton = styled.button`
   }
 `;
 
-function PhotoUpload({
-  title = 'Eure',
-  titleAccent = 'Fotos',
-  subtitle = 'Teilt eure schönsten Schnappschüsse von unserer Hochzeit mit uns!',
-  maxFiles = 20,
-  acceptedTypes = ['image/jpeg', 'image/png', 'image/webp'],
-  onUpload,
-}) {
+function PhotoUpload({ content = {} }) {
+  const title = content.title || 'Teilt eure Fotos';
+  const description = content.description || 'Teilt eure schönsten Schnappschüsse mit uns!';
+  const maxFiles = content.max_files || 10;
+  const acceptedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  
   const [visible, setVisible] = useState(false);
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
@@ -338,8 +337,8 @@ function PhotoUpload({
       <Container>
         <Header>
           <Eyebrow $visible={visible}>Foto Upload</Eyebrow>
-          <Title $visible={visible}>{title} <span>{titleAccent}</span></Title>
-          <Subtitle $visible={visible}>{subtitle}</Subtitle>
+          <Title $visible={visible}>{title}</Title>
+          <Subtitle $visible={visible}>{description}</Subtitle>
         </Header>
         
         <DropZone

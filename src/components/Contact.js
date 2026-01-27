@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
 
 const Section = styled.section`
   padding: 8rem 2rem;
@@ -160,12 +161,10 @@ const InfoText = styled.p`
   margin: 0;
 `;
 
-function Contact({
-  title = 'Eure',
-  titleAccent = 'Ansprechpartner',
-  subtitle = 'Bei Fragen oder für Überraschungen wendet euch gerne an unsere Trauzeugen.',
-  witnesses = [],
-}) {
+function Contact({ content = {} }) {
+  const title = content.title || 'Eure Ansprechpartner';
+  const persons = content.persons || [];
+  
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
@@ -173,7 +172,7 @@ function Contact({
     {
       role: 'Trauzeugin',
       name: 'Lisa Schneider',
-      relation: 'Beste Freundin der Braut',
+      relation: 'Beste Freundin',
       phone: '+49 170 1234567',
       email: 'lisa@email.de',
       image: null,
@@ -188,7 +187,7 @@ function Contact({
     },
   ];
 
-  const items = witnesses.length > 0 ? witnesses : defaultWitnesses;
+  const items = persons.length > 0 ? persons : defaultWitnesses;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -204,8 +203,7 @@ function Contact({
       <Container>
         <Header>
           <Eyebrow $visible={visible}>Kontakt</Eyebrow>
-          <Title $visible={visible}>{title} <span>{titleAccent}</span></Title>
-          <Subtitle $visible={visible}>{subtitle}</Subtitle>
+          <Title $visible={visible}>{title}</Title>
         </Header>
         
         <Grid>

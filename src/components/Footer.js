@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
 
 const FooterSection = styled.footer`
   background: #000;
@@ -253,27 +254,22 @@ const ErrorMessage = styled.p`
   margin-top: 1rem;
 `;
 
-function Footer({
-  coupleNames = 'Pauli & Mo',
-  tagline = "We're so excited to share this special day with you.",
-  links = [],
-  quickLinks = [],
-  showBadge = false,
-}) {
+function Footer({ coupleNames = 'Sarah & Iver', content = {}, showBadge = false }) {
+  const hashtag = content.hashtag || '';
+  
   const defaultLinks = [
-    { label: 'Our Story', href: '#story' },
-    { label: 'Wedding', href: '#location' },
-    { label: 'Schedule', href: '#timeline' },
+    { label: 'Unsere Geschichte', href: '#story' },
+    { label: 'Location', href: '#location' },
+    { label: 'Ablauf', href: '#timeline' },
   ];
 
   const defaultQuickLinks = [
     { label: 'RSVP', href: '#rsvp' },
-    { label: 'Gallery', href: '#gallery' },
     { label: 'FAQ', href: '#faq' },
   ];
 
-  const navLinks = links.length > 0 ? links : defaultLinks;
-  const quickNavLinks = quickLinks.length > 0 ? quickLinks : defaultQuickLinks;
+  const navLinks = defaultLinks;
+  const quickNavLinks = defaultQuickLinks;
 
   const handleAdminClick = () => {
     window.location.href = '/admin';

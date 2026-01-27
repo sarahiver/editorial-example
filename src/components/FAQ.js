@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
 
 const Section = styled.section`
   padding: 8rem 2rem;
@@ -145,52 +146,22 @@ const ContactLink = styled.a`
   }
 `;
 
-function FAQ({
-  title = 'Häufige',
-  titleAccent = 'Fragen',
-  faqs = [],
-  contactEmail = 'hochzeit@email.de',
-}) {
+function FAQ({ content = {} }) {
+  const title = content.title || 'Häufige Fragen';
+  const questions = content.questions || [];
+  
   const [visible, setVisible] = useState(false);
   const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
 
   const defaultFaqs = [
-    {
-      question: 'Gibt es einen Dresscode?',
-      answer: 'Wir freuen uns auf elegante Abendgarderobe. Die Herren gerne im Anzug, die Damen im Cocktail- oder Abendkleid. Bitte vermeidet Weiß, das ist der Braut vorbehalten.',
-    },
-    {
-      question: 'Kann ich jemanden mitbringen?',
-      answer: 'Bitte habt Verständnis, dass wir nur die auf der Einladung genannten Personen empfangen können. Bei Fragen kontaktiert uns gerne.',
-    },
-    {
-      question: 'Sind Kinder willkommen?',
-      answer: 'Wir haben uns für eine Feier nur für Erwachsene entschieden. Wir hoffen auf euer Verständnis.',
-    },
-    {
-      question: 'Gibt es Parkplätze vor Ort?',
-      answer: 'Ja, ausreichend kostenlose Parkplätze sind direkt an der Location vorhanden.',
-    },
-    {
-      question: 'Gibt es Übernachtungsmöglichkeiten?',
-      answer: 'In der Nähe gibt es mehrere Hotels. Wir haben ein Zimmerkontingent im Hotel Schlossblick reserviert. Nennt bei der Buchung das Stichwort "Hochzeit Pauli & Mo".',
-    },
-    {
-      question: 'Darf ich während der Trauung fotografieren?',
-      answer: 'Wir haben einen professionellen Fotografen. Bitte verzichtet während der Trauung auf eigene Fotos, damit alle den Moment genießen können. Bei der Feier könnt ihr gerne knipsen!',
-    },
-    {
-      question: 'Was soll ich schenken?',
-      answer: 'Das größte Geschenk ist eure Anwesenheit! Wer uns dennoch etwas schenken möchte, findet unter "Geschenke" unsere Wunschliste.',
-    },
-    {
-      question: 'Bis wann muss ich zusagen?',
-      answer: 'Bitte gebt uns bis zum 15. Juni Bescheid, ob ihr dabei seid. Das hilft uns sehr bei der Planung!',
-    },
+    { question: 'Gibt es einen Dresscode?', answer: 'Wir freuen uns auf elegante Abendgarderobe.' },
+    { question: 'Kann ich jemanden mitbringen?', answer: 'Bitte nur die auf der Einladung genannten Personen.' },
+    { question: 'Sind Kinder willkommen?', answer: 'Wir haben uns für eine Feier nur für Erwachsene entschieden.' },
+    { question: 'Gibt es Parkplätze?', answer: 'Ja, kostenlose Parkplätze sind vorhanden.' },
   ];
 
-  const items = faqs.length > 0 ? faqs : defaultFaqs;
+  const items = questions.length > 0 ? questions : defaultFaqs;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -210,7 +181,7 @@ function FAQ({
       <Container>
         <Header>
           <Eyebrow $visible={visible}>FAQ</Eyebrow>
-          <Title $visible={visible}>{title} <span>{titleAccent}</span></Title>
+          <Title $visible={visible}>{title}</Title>
         </Header>
         
         <AccordionList>
@@ -226,14 +197,6 @@ function FAQ({
             </AccordionItem>
           ))}
         </AccordionList>
-        
-        {contactEmail && (
-          <ContactBox $visible={visible}>
-            <ContactTitle>Noch Fragen?</ContactTitle>
-            <ContactText>Wir helfen euch gerne weiter.</ContactText>
-            <ContactLink href={`mailto:${contactEmail}`}>E-Mail schreiben</ContactLink>
-          </ContactBox>
-        )}
       </Container>
     </Section>
   );

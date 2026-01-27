@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
 
 const Section = styled.section`
   padding: 8rem 2rem;
@@ -142,13 +143,16 @@ const PlaceholderText = styled.p`
   color: #999;
 `;
 
-function Gallery({ title = 'Unsere', titleAccent = 'Momente', images = [] }) {
+function Gallery({ content = {} }) {
+  const title = content.title || 'Galerie';
+  const images = content.images || [];
+  
   const [visible, setVisible] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const sectionRef = useRef(null);
 
-  const defaultImages = Array(6).fill(null).map((_, i) => ({ src: null, alt: `Bild ${i + 1}` }));
+  const defaultImages = Array(6).fill(null).map((_, i) => ({ url: null, alt: `Bild ${i + 1}` }));
   const galleryImages = images.length > 0 ? images : defaultImages;
 
   useEffect(() => {
@@ -190,21 +194,21 @@ function Gallery({ title = 'Unsere', titleAccent = 'Momente', images = [] }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [lightboxOpen, navigate]);
 
-  const hasImages = galleryImages.some(img => img.src);
+  const hasImages = galleryImages.some(img => img.url);
 
   return (
     <Section ref={sectionRef} id="gallery">
       <Container>
         <Header>
           <Eyebrow $visible={visible}>Galerie</Eyebrow>
-          <Title $visible={visible}>{title} <span>{titleAccent}</span></Title>
+          <Title $visible={visible}>{title}</Title>
         </Header>
         
         {hasImages ? (
           <Grid>
             {galleryImages.map((img, i) => (
-              <ImageWrapper key={i} $index={i} $visible={visible} onClick={() => img.src && openLightbox(i)}>
-                <Image $src={img.src} $tall={i % 3 === 0} />
+              <ImageWrapper key={i} $index={i} $visible={visible} onClick={() => img.url && openLightbox(i)}>
+                <Image $src={img.url} $tall={i % 3 === 0} />
               </ImageWrapper>
             ))}
           </Grid>
@@ -212,7 +216,7 @@ function Gallery({ title = 'Unsere', titleAccent = 'Momente', images = [] }) {
           <Placeholder>
             <PlaceholderText>Hier werden bald unsere gemeinsamen Fotos erscheinen.</PlaceholderText>
           </Placeholder>
-        )}
+        )}}
         
         <Lightbox $open={lightboxOpen} onClick={closeLightbox}>
           <LightboxClose onClick={closeLightbox}>×</LightboxClose>

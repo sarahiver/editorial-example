@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
 
 const Section = styled.section`
   padding: 8rem 2rem;
@@ -191,18 +192,13 @@ const NavigateButton = styled.a`
   }
 `;
 
-function Directions({
-  title = 'An',
-  titleAccent = 'fahrt',
-  subtitle = 'So findet ihr zu unserer Feier.',
-  address = {
-    name: 'Schloss Heidelberg',
-    street: 'Schlosshof 1',
-    city: '69117 Heidelberg',
-  },
-  mapEmbedUrl = '',
-  googleMapsUrl = 'https://maps.google.com',
-}) {
+function Directions({ content = {} }) {
+  const title = content.title || 'Anfahrt';
+  const address = content.address || 'Adresse folgt';
+  const mapsEmbed = content.maps_embed || '';
+  const parkingInfo = content.parking_info || '';
+  const publicTransport = content.public_transport || '';
+  
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
@@ -219,14 +215,14 @@ function Directions({
     {
       icon: '🚗',
       title: 'Mit dem Auto',
-      text: 'Über die A5 Ausfahrt Heidelberg, dann der Beschilderung Richtung Altstadt folgen.',
-      details: ['Parkplätze: P12 Schloss (kostenpflichtig)', 'Ca. 5 Min. Fußweg zur Location'],
+      text: parkingInfo || 'Parkplätze sind vorhanden.',
+      details: [],
     },
     {
       icon: '🚆',
-      title: 'Mit der Bahn',
-      text: 'Heidelberg Hauptbahnhof, dann mit der Straßenbahn Linie 5 bis Haltestelle "Schloss".',
-      details: ['Fahrzeit ab Hbf: ca. 15 Min.', 'Taktung: alle 10 Min.'],
+      title: 'Öffentliche Verkehrsmittel',
+      text: publicTransport || 'Infos folgen.',
+      details: [],
     },
     {
       icon: '🚕',
@@ -241,14 +237,13 @@ function Directions({
       <Container>
         <Header>
           <Eyebrow $visible={visible}>Der Weg zu uns</Eyebrow>
-          <Title $visible={visible}>{title}<span>{titleAccent}</span></Title>
-          <Subtitle $visible={visible}>{subtitle}</Subtitle>
+          <Title $visible={visible}>{title}</Title>
         </Header>
         
         <MapContainer $visible={visible}>
-          {mapEmbedUrl ? (
+          {mapsEmbed ? (
             <iframe 
-              src={mapEmbedUrl}
+              src={mapsEmbed}
               title="Anfahrtskarte"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
@@ -276,13 +271,8 @@ function Directions({
         <AddressCard $visible={visible}>
           <AddressLabel>Adresse der Location</AddressLabel>
           <AddressText>
-            {address.name}<br />
-            {address.street}<br />
-            {address.city}
+            {address}
           </AddressText>
-          <NavigateButton href={googleMapsUrl} target="_blank" rel="noopener noreferrer">
-            Route planen →
-          </NavigateButton>
         </AddressCard>
       </Container>
     </Section>

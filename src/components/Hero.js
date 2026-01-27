@@ -73,7 +73,7 @@ const BackgroundCircle = styled.div`
   height: 60vw;
   max-width: 800px;
   max-height: 800px;
-  border: 1px solid rgba(0,0,0,0.8);
+  border: 1px solid rgba(0,0,0,0.05);
   border-radius: 50%;
   pointer-events: none;
 `;

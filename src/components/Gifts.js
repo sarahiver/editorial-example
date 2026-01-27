@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
 
 const Section = styled.section`
   padding: 8rem 2rem;
@@ -245,13 +246,12 @@ const SubmitButton = styled.button`
   &:hover { background: #333; }
 `;
 
-function Gifts({
-  title = 'Geschenke',
-  titleAccent = 'wünsche',
-  introText = 'Das größte Geschenk ist eure Anwesenheit. Wer uns dennoch etwas schenken möchte, findet hier unsere Wunschliste.',
-  gifts = [],
-  onReserve,
-}) {
+function Gifts({ content = {} }) {
+  const { projectId } = useWedding();
+  const title = content.title || 'Geschenke';
+  const description = content.description || 'Das größte Geschenk ist eure Anwesenheit.';
+  const giftItems = content.items || [];
+  
   const [visible, setVisible] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedGift, setSelectedGift] = useState(null);
@@ -259,15 +259,11 @@ function Gifts({
   const sectionRef = useRef(null);
 
   const defaultGifts = [
-    { id: 1, name: 'KitchenAid Küchenmaschine', description: 'In Creme – für gemeinsame Backabenteuer.', price: '599€', image: null, reserved: false },
-    { id: 2, name: 'Dyson Staubsauger V15', description: 'Für ein sauberes Zuhause.', price: '649€', image: null, reserved: true, reservedBy: 'Familie Müller' },
-    { id: 3, name: 'Nespresso Kaffeemaschine', description: 'Für den perfekten Morgenkaffee.', price: '299€', image: null, reserved: false },
-    { id: 4, name: 'Bettwäsche-Set Premium', description: 'Ägyptische Baumwolle, King Size.', price: '189€', image: null, reserved: false },
-    { id: 5, name: 'Weber Gasgrill Spirit', description: 'Für Grillabende mit Freunden.', price: '549€', image: null, reserved: true, reservedBy: 'Thomas & Lisa' },
-    { id: 6, name: 'Philips Hue Starter Set', description: 'Smartes Licht für unser neues Heim.', price: '149€', image: null, reserved: false },
+    { id: 1, title: 'Küchenmaschine', description: 'Für gemeinsame Backabenteuer.', cost: '599€', image: null, reserved: false },
+    { id: 2, title: 'Staubsauger', description: 'Für ein sauberes Zuhause.', cost: '649€', image: null, reserved: false },
   ];
 
-  const items = gifts.length > 0 ? gifts : defaultGifts;
+  const items = giftItems.length > 0 ? giftItems : defaultGifts;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -295,24 +291,24 @@ function Gifts({
       <Container>
         <Header>
           <Eyebrow $visible={visible}>Wunschliste</Eyebrow>
-          <Title $visible={visible}>{title}<span>{titleAccent}</span></Title>
-          <Intro $visible={visible}>{introText}</Intro>
+          <Title $visible={visible}>{title}</Title>
+          <Intro $visible={visible}>{description}</Intro>
         </Header>
         
         <Grid>
           {items.map((gift, i) => (
-            <GiftCard key={gift.id} $index={i} $visible={visible} $reserved={gift.reserved}>
+            <GiftCard key={gift.id || i} $index={i} $visible={visible} $reserved={gift.reserved}>
               <GiftImage $image={gift.image} $reserved={gift.reserved} />
               <GiftContent>
-                <GiftName $reserved={gift.reserved}>{gift.name}</GiftName>
+                <GiftName $reserved={gift.reserved}>{gift.title}</GiftName>
                 <GiftDescription>{gift.description}</GiftDescription>
-                <GiftPrice $reserved={gift.reserved}>{gift.price}</GiftPrice>
+                <GiftPrice $reserved={gift.reserved}>{gift.cost}</GiftPrice>
                 <ReserveButton 
                   $reserved={gift.reserved} 
                   onClick={() => !gift.reserved && handleReserve(gift)}
                   disabled={gift.reserved}
                 >
-                  {gift.reserved ? `Reserviert von ${gift.reservedBy}` : 'Reservieren'}
+                  {gift.reserved ? `Reserviert von ${gift.reserved_by}` : 'Reservieren'}
                 </ReserveButton>
               </GiftContent>
             </GiftCard>
@@ -323,7 +319,7 @@ function Gifts({
           <ModalContent onClick={e => e.stopPropagation()}>
             <ModalClose onClick={() => setModalOpen(false)}>×</ModalClose>
             <ModalTitle>Geschenk reservieren</ModalTitle>
-            <ModalSubtitle>{selectedGift?.name} – {selectedGift?.price}</ModalSubtitle>
+            <ModalSubtitle>{selectedGift?.title} – {selectedGift?.cost}</ModalSubtitle>
             
             <form onSubmit={handleSubmit}>
               <FormGroup>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
 
 const Section = styled.section`
   padding: 8rem 2rem;
@@ -167,18 +168,18 @@ const NoteText = styled.p`
   strong { color: #FFF; }
 `;
 
-function Dresscode({
-  title = 'Dress',
-  titleAccent = 'code',
-  subtitle = 'Wir freuen uns auf elegante Abendgarderobe in festlichem Rahmen.',
-  colors = [
+function Dresscode({ content = {} }) {
+  const title = content.title || 'Dresscode';
+  const code = content.code || 'Elegant';
+  const description = content.description || 'Wir freuen uns auf elegante Abendgarderobe.';
+  const colors = content.colors || [
     { color: '#000000', name: 'Schwarz' },
     { color: '#1A1A1A', name: 'Anthrazit' },
-    { color: '#4A4A4A', name: 'Grau' },
     { color: '#FFFFFF', name: 'Weiß', border: true },
-    { color: '#C9B896', name: 'Champagner' },
-  ],
-}) {
+  ];
+  const dos = content.dos || ['Anzug', 'Abendkleid'];
+  const donts = content.donts || ['Jeans', 'Turnschuhe'];
+
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
@@ -196,8 +197,8 @@ function Dresscode({
       <Container>
         <Header>
           <Eyebrow $visible={visible}>Was ihr anzieht</Eyebrow>
-          <Title $visible={visible}>{title}<span>{titleAccent}</span></Title>
-          <Subtitle $visible={visible}>{subtitle}</Subtitle>
+          <Title $visible={visible}>{title}</Title>
+          <Subtitle $visible={visible}>{description}</Subtitle>
         </Header>
         
         <Grid>

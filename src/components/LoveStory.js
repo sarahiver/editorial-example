@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
 
 const Section = styled.section`
   padding: 8rem 2rem;
@@ -190,7 +191,10 @@ const Image = styled.div`
   }
 `;
 
-function LoveStory({ title = 'Unser', titleAccent = 'Weg', milestones = [], showBadge = false }) {
+function LoveStory({ content = {}, showBadge = false }) {
+  const title = content.title || 'Unsere Geschichte';
+  const events = content.events || [];
+  
   const [visible, setVisible] = useState(false);
   const [visibleItems, setVisibleItems] = useState([]);
   const [progress, setProgress] = useState(0);
@@ -198,13 +202,13 @@ function LoveStory({ title = 'Unser', titleAccent = 'Weg', milestones = [], show
   const itemRefs = useRef([]);
 
   const defaultMilestones = [
-    { year: '2018', title: 'Das erste Treffen', text: 'Bei einem gemeinsamen Freund haben wir uns zum ersten Mal getroffen. Es hat sofort gefunkt.', image: null },
-    { year: '2019', title: 'Der erste Urlaub', text: 'Unsere erste gemeinsame Reise führte uns nach Italien. Unvergessliche Momente am Meer.', image: null },
-    { year: '2021', title: 'Zusammenziehen', text: 'Wir haben uns entschieden, den nächsten Schritt zu wagen und zusammenzuziehen.', image: null },
-    { year: '2024', title: 'Der Antrag', text: 'An einem romantischen Abend in Paris hat Mo die Frage aller Fragen gestellt.', image: null },
+    { date: '2018', title: 'Das erste Treffen', description: 'Bei einem gemeinsamen Freund haben wir uns zum ersten Mal getroffen.', image: null },
+    { date: '2019', title: 'Der erste Urlaub', description: 'Unsere erste gemeinsame Reise führte uns nach Italien.', image: null },
+    { date: '2021', title: 'Zusammenziehen', description: 'Wir haben uns entschieden, den nächsten Schritt zu wagen.', image: null },
+    { date: '2024', title: 'Der Antrag', description: 'An einem romantischen Abend wurde die Frage aller Fragen gestellt.', image: null },
   ];
 
-  const items = milestones.length > 0 ? milestones : defaultMilestones;
+  const items = events.length > 0 ? events : defaultMilestones;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -238,7 +242,7 @@ function LoveStory({ title = 'Unser', titleAccent = 'Weg', milestones = [], show
       <Container>
         <Header>
           <Eyebrow $visible={visible}>Unsere Geschichte</Eyebrow>
-          <Title $visible={visible}>{title} <span>{titleAccent}</span></Title>
+          <Title $visible={visible}>{title}</Title>
         </Header>
         
         <TimelineWrapper>
@@ -249,9 +253,9 @@ function LoveStory({ title = 'Unser', titleAccent = 'Weg', milestones = [], show
               <Marker $active={visibleItems.includes(i)} />
               
               <ContentBox className="content" $visible={visibleItems.includes(i)}>
-                <Year>{item.year}</Year>
+                <Year>{item.date}</Year>
                 <MilestoneTitle>{item.title}</MilestoneTitle>
-                <MilestoneText>{item.text}</MilestoneText>
+                <MilestoneText>{item.description}</MilestoneText>
               </ContentBox>
               
               <ImageWrapper className="image-wrapper" $visible={visibleItems.includes(i)}>

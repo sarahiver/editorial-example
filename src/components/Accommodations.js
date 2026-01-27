@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
 
 const Section = styled.section`
   padding: 8rem 2rem;
@@ -171,45 +172,26 @@ const NoteText = styled.p`
   strong { color: #000; }
 `;
 
-function Accommodations({
-  title = 'Unter',
-  titleAccent = 'künfte',
-  subtitle = 'Wir haben für euch einige Hotels in der Nähe der Location zusammengestellt.',
-  accommodations = [],
-  bookingCode = 'Hochzeit Pauli & Mo',
-}) {
+function Accommodations({ content = {} }) {
+  const title = content.title || 'Übernachtung';
+  const description = content.description || 'Wir haben einige Hotels in der Nähe zusammengestellt.';
+  const hotels = content.hotels || [];
+  
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
 
   const defaultAccommodations = [
     {
-      name: 'Hotel Schlossblick',
+      name: 'Hotel Beispiel',
       distance: '500m zur Location',
-      description: 'Unser Top-Tipp! Zimmer mit Blick auf das Schloss. Wir haben ein Kontingent reserviert.',
-      priceRange: 'ab 120€ / Nacht',
-      url: 'https://example.com',
-      image: null,
-      recommended: true,
-    },
-    {
-      name: 'Boutique Hotel Am Markt',
-      distance: '1,2 km zur Location',
-      description: 'Charmantes Boutique-Hotel in der Altstadt mit modernem Design.',
-      priceRange: 'ab 95€ / Nacht',
-      url: 'https://example.com',
-      image: null,
-    },
-    {
-      name: 'Pension Heidelberg',
-      distance: '800m zur Location',
-      description: 'Gemütliche Pension mit familiärer Atmosphäre und gutem Frühstück.',
-      priceRange: 'ab 65€ / Nacht',
-      url: 'https://example.com',
+      description: 'Unser Top-Tipp!',
+      price_range: 'ab 120€ / Nacht',
+      url: '#',
       image: null,
     },
   ];
 
-  const items = accommodations.length > 0 ? accommodations : defaultAccommodations;
+  const items = hotels.length > 0 ? hotels : defaultAccommodations;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -225,8 +207,8 @@ function Accommodations({
       <Container>
         <Header>
           <Eyebrow $visible={visible}>Übernachten</Eyebrow>
-          <Title $visible={visible}>{title}<span>{titleAccent}</span></Title>
-          <Subtitle $visible={visible}>{subtitle}</Subtitle>
+          <Title $visible={visible}>{title}</Title>
+          <Subtitle $visible={visible}>{description}</Subtitle>
         </Header>
         
         <Grid>
@@ -234,24 +216,15 @@ function Accommodations({
             <Card key={i} $index={i} $visible={visible}>
               <CardImage $image={acc.image} />
               <CardContent>
-                {acc.recommended && <RecommendedBadge>Empfehlung</RecommendedBadge>}
                 <CardName>{acc.name}</CardName>
                 <CardDistance>📍 {acc.distance}</CardDistance>
                 <CardDescription>{acc.description}</CardDescription>
-                <PriceRange>{acc.priceRange} <span>inkl. Frühstück</span></PriceRange>
+                <PriceRange>{acc.price_range}</PriceRange>
                 {acc.url && <CardLink href={acc.url} target="_blank" rel="noopener noreferrer">Zur Website →</CardLink>}
               </CardContent>
             </Card>
           ))}
         </Grid>
-        
-        <Note $visible={visible}>
-          <NoteTitle>💡 Buchungs-Tipp</NoteTitle>
-          <NoteText>
-            Im Hotel Schlossblick haben wir ein Zimmerkontingent bis zum 15. Juni reserviert. 
-            Nennt bei der Buchung einfach das Stichwort <strong>"{bookingCode}"</strong> für den Sonderpreis.
-          </NoteText>
-        </Note>
       </Container>
     </Section>
   );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useWedding } from '../context/WeddingContext';
 
 const Section = styled.section`
   padding: 8rem 2rem;
@@ -139,12 +140,9 @@ const EmptyText = styled.p`
   color: #999;
 `;
 
-function WeddingABC({
-  title = 'Hochzeits',
-  titleAccent = 'ABC',
-  subtitle = 'Alles Wissenswerte von A bis Z',
-  entries = [],
-}) {
+function WeddingABC({ content = {} }) {
+  const title = content.title || 'Hochzeits-ABC';
+  const entries = content.entries || [];
   const [visible, setVisible] = useState(false);
   const [activeLetter, setActiveLetter] = useState(null);
   const sectionRef = useRef(null);
@@ -192,8 +190,7 @@ function WeddingABC({
       <Container>
         <Header>
           <Eyebrow $visible={visible}>Von A bis Z</Eyebrow>
-          <Title $visible={visible}>{title}<span>{titleAccent}</span></Title>
-          <Subtitle $visible={visible}>{subtitle}</Subtitle>
+          <Title $visible={visible}>{title}</Title>
         </Header>
         
         <AlphabetNav $visible={visible}>
