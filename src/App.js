@@ -1,7 +1,6 @@
 // src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
-import styled, { keyframes } from 'styled-components';
 import EditorialGlobalStyles from './styles/GlobalStyles';
 import { WeddingProvider, useWedding } from './context/WeddingContext';
 
@@ -32,109 +31,6 @@ import SaveTheDate from './components/SaveTheDate';
 import ArchivePage from './components/ArchivePage';
 
 // ============================================
-// STYLED COMPONENTS FOR LANDING PAGE
-// ============================================
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const LandingContainer = styled.div`
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #FAFAFA;
-  padding: 2rem;
-`;
-
-const LandingContent = styled.div`
-  text-align: center;
-  max-width: 600px;
-  animation: ${fadeIn} 0.8s ease;
-`;
-
-const LandingLogo = styled.h1`
-  font-family: 'Instrument Serif', serif;
-  font-size: clamp(3rem, 8vw, 5rem);
-  font-weight: 400;
-  color: #000;
-  margin-bottom: 1rem;
-  
-  span {
-    font-style: italic;
-  }
-`;
-
-const LandingTagline = styled.p`
-  font-family: 'Inter', sans-serif;
-  font-size: 1.1rem;
-  color: #666;
-  margin-bottom: 3rem;
-  line-height: 1.6;
-`;
-
-const LandingCTA = styled.a`
-  display: inline-block;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #FFF;
-  background: #000;
-  padding: 1.25rem 2.5rem;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: #333;
-    transform: translateY(-2px);
-  }
-`;
-
-const LandingLinks = styled.div`
-  margin-top: 3rem;
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
-  justify-content: center;
-`;
-
-const LandingLink = styled.a`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
-  color: #999;
-  text-decoration: none;
-  transition: color 0.2s ease;
-  
-  &:hover {
-    color: #000;
-  }
-`;
-
-const DemoNotice = styled.div`
-  margin-top: 4rem;
-  padding: 1.5rem 2rem;
-  background: #FFF;
-  border: 1px solid #E0E0E0;
-  
-  p {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.85rem;
-    color: #666;
-    margin: 0;
-    
-    code {
-      background: #F5F5F5;
-      padding: 0.2rem 0.4rem;
-      font-size: 0.8rem;
-    }
-  }
-`;
-
-// ============================================
 // LOADING & ERROR SCREENS
 // ============================================
 const LoadingScreen = () => (
@@ -157,11 +53,7 @@ const LoadingScreen = () => (
         margin: '0 auto 1rem',
       }} />
       <p style={{ color: '#666', fontSize: '0.9rem' }}>Laden...</p>
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   </div>
 );
@@ -176,31 +68,23 @@ const ErrorScreen = ({ message }) => (
     fontFamily: 'Inter, sans-serif',
   }}>
     <div style={{ textAlign: 'center', padding: '2rem' }}>
-      <h1 style={{ 
-        fontFamily: 'Instrument Serif, serif', 
-        fontSize: '2rem',
-        marginBottom: '1rem',
-        color: '#000',
-      }}>
+      <h1 style={{ fontFamily: 'Instrument Serif, serif', fontSize: '2rem', marginBottom: '1rem', color: '#000' }}>
         Seite nicht gefunden
       </h1>
       <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '2rem' }}>
         {message || 'Das Hochzeitsprojekt konnte nicht gefunden werden.'}
       </p>
-      <a 
-        href="/" 
-        style={{
-          fontFamily: 'Inter, sans-serif',
-          fontSize: '0.75rem',
-          fontWeight: '500',
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          color: '#000',
-          textDecoration: 'none',
-          borderBottom: '1px solid #000',
-          paddingBottom: '0.25rem',
-        }}
-      >
+      <a href="/" style={{
+        fontFamily: 'Inter, sans-serif',
+        fontSize: '0.75rem',
+        fontWeight: '500',
+        letterSpacing: '0.1em',
+        textTransform: 'uppercase',
+        color: '#000',
+        textDecoration: 'none',
+        borderBottom: '1px solid #000',
+        paddingBottom: '0.25rem',
+      }}>
         ← Zurück zur Startseite
       </a>
     </div>
@@ -208,42 +92,173 @@ const ErrorScreen = ({ message }) => (
 );
 
 // ============================================
-// LANDING PAGE (ohne Slug)
+// DEMO CONTENT (Platzhalter für ohne Slug)
 // ============================================
-const LandingPage = () => {
+const demoContent = {
+  hero: {
+    tagline: 'Wir heiraten',
+    location_short: 'Hamburg',
+    background_image: null,
+  },
+  countdown: {
+    target_date: '2026-08-15T14:00:00',
+    title: 'Noch',
+    show_seconds: false,
+  },
+  lovestory: {
+    title: 'Unsere Geschichte',
+    subtitle: 'Wie alles begann',
+    events: [
+      { date: '2019', title: 'Das erste Treffen', description: 'Auf einer Party haben wir uns kennengelernt...', image: null },
+      { date: '2020', title: 'Der erste Urlaub', description: 'Zusammen nach Italien...', image: null },
+      { date: '2024', title: 'Die Verlobung', description: 'Am Strand bei Sonnenuntergang...', image: null },
+    ],
+  },
+  timeline: {
+    title: 'Ablauf',
+    subtitle: 'So feiern wir',
+    events: [
+      { time: '14:00', title: 'Trauung', description: 'Standesamt', icon: '💒' },
+      { time: '15:30', title: 'Sektempfang', description: 'Im Garten', icon: '🥂' },
+      { time: '18:00', title: 'Dinner', description: 'Im Festsaal', icon: '🍽️' },
+      { time: '21:00', title: 'Party', description: 'Bis in die Nacht', icon: '🎉' },
+    ],
+  },
+  locations: {
+    title: 'Die Locations',
+    locations: [
+      { type: 'Trauung', name: 'Standesamt Mitte', address: 'Musterstraße 1, 20095 Hamburg', time: '14:00 Uhr', image: null },
+      { type: 'Feier', name: 'Schloss Traumhaft', address: 'Parkweg 10, 22085 Hamburg', time: '15:30 Uhr', image: null },
+    ],
+  },
+  rsvp: {
+    title: 'RSVP',
+    subtitle: 'Bitte gebt uns bis zum 1. Juni Bescheid',
+    deadline: '2026-06-01',
+  },
+  dresscode: {
+    title: 'Dresscode',
+    subtitle: 'Festlich elegant',
+    description: 'Wir freuen uns, wenn ihr in festlicher Kleidung erscheint.',
+    colors: ['#1a1a2e', '#16213e', '#e94560'],
+  },
+  gifts: {
+    title: 'Geschenke',
+    subtitle: 'Das größte Geschenk ist eure Anwesenheit',
+    description: 'Falls ihr uns dennoch etwas schenken möchtet...',
+    items: [
+      { name: 'Hochzeitsreise', description: 'Unterstützt unsere Flitterwochen', price: null, reserved: false },
+      { name: 'Küchenmaschine', description: 'Für gemeinsames Kochen', price: '€299', reserved: false },
+    ],
+  },
+  accommodations: {
+    title: 'Übernachtung',
+    description: 'Hier könnt ihr übernachten',
+    hotels: [
+      { name: 'Hotel Beispiel', distance: '500m', price_range: '€€', description: 'Direkt am Veranstaltungsort', url: '#', image: null },
+    ],
+  },
+  gallery: {
+    title: 'Galerie',
+    images: [],
+  },
+  musicwishes: {
+    title: 'Musikwünsche',
+    subtitle: 'Welche Songs sollen auf keinen Fall fehlen?',
+  },
+  guestbook: {
+    title: 'Gästebuch',
+    subtitle: 'Hinterlasst uns eine Nachricht',
+  },
+  faq: {
+    title: 'FAQ',
+    subtitle: 'Häufige Fragen',
+    items: [
+      { question: 'Gibt es Parkplätze?', answer: 'Ja, ausreichend Parkplätze sind vorhanden.' },
+      { question: 'Sind Kinder willkommen?', answer: 'Natürlich! Wir freuen uns über alle Gäste.' },
+      { question: 'Gibt es vegetarisches Essen?', answer: 'Ja, bitte gebt dies bei der RSVP an.' },
+    ],
+  },
+  weddingabc: {
+    title: 'Hochzeits-ABC',
+    entries: [
+      { letter: 'A', title: 'Anfahrt', description: 'Beschreibung zur Anfahrt...' },
+      { letter: 'B', title: 'Blumen', description: 'Bitte keine Blumen mitbringen...' },
+    ],
+  },
+  photoupload: {
+    title: 'Eure Fotos',
+    description: 'Teilt eure schönsten Momente mit uns!',
+    max_files: 10,
+  },
+  footer: {
+    names: 'Name & Name',
+    tagline: 'Wir freuen uns auf euch!',
+    hashtag: '#NameUndName2026',
+  },
+};
+
+// ============================================
+// DEMO PAGE (ohne Slug - zeigt alle Komponenten mit Platzhaltern)
+// ============================================
+const DemoPage = () => {
+  const navLinks = [
+    { label: 'Unsere Geschichte', href: '#story' },
+    { label: 'Ablauf', href: '#timeline' },
+    { label: 'Location', href: '#location' },
+    { label: 'RSVP', href: '#rsvp' },
+    { label: 'FAQ', href: '#faq' },
+  ];
+
   return (
-    <LandingContainer>
-      <LandingContent>
-        <LandingLogo>
-          Iver<span>Lasting</span>
-        </LandingLogo>
-        <LandingTagline>
-          Wunderschöne Hochzeitswebsites für euren besonderen Tag.
-          Modern, elegant und individuell gestaltet.
-        </LandingTagline>
-        <LandingCTA href="https://iverlasting.de" target="_blank" rel="noopener">
-          Mehr erfahren
-        </LandingCTA>
-        
-        <DemoNotice>
-          <p>
-            Demo ansehen: <code>/demo</code> · Admin: <code>/demo/admin</code>
-          </p>
-        </DemoNotice>
-        
-        <LandingLinks>
-          <LandingLink href="/demo">Demo ansehen</LandingLink>
-          <LandingLink href="/demo/std">Save the Date</LandingLink>
-          <LandingLink href="/demo/archiv">Archiv</LandingLink>
-          <LandingLink href="/demo/admin">Admin</LandingLink>
-        </LandingLinks>
-      </LandingContent>
-    </LandingContainer>
+    <>
+      <Navigation 
+        coupleNames="Name & Name"
+        weddingDate="15. August 2026"
+        links={navLinks}
+      />
+
+      <Hero 
+        name1="Name"
+        name2="Name"
+        date="15. August 2026"
+        location={demoContent.hero.location_short}
+        eyebrow={demoContent.hero.tagline}
+        backgroundImage={demoContent.hero.background_image}
+      />
+
+      <Countdown 
+        weddingDate={demoContent.countdown.target_date}
+        title={demoContent.countdown.title}
+        showSeconds={demoContent.countdown.show_seconds}
+      />
+
+      <LoveStory content={demoContent.lovestory} />
+      <Timeline content={demoContent.timeline} />
+      <Locations content={demoContent.locations} />
+      <Directions content={{}} />
+      <RSVP content={demoContent.rsvp} />
+      <Dresscode content={demoContent.dresscode} />
+      <Gifts content={demoContent.gifts} />
+      <Accommodations content={demoContent.accommodations} />
+      <Contact content={{}} />
+      <Gallery content={demoContent.gallery} />
+      <MusicWishes content={demoContent.musicwishes} />
+      <Guestbook content={demoContent.guestbook} />
+      <FAQ content={demoContent.faq} />
+      <WeddingABC content={demoContent.weddingabc} />
+      <PhotoUpload content={demoContent.photoupload} />
+
+      <Footer 
+        coupleNames="Name & Name"
+        content={demoContent.footer}
+      />
+    </>
   );
 };
 
 // ============================================
-// WEDDING PAGE (Live-Ansicht)
+// WEDDING PAGE (mit Slug - lädt echte Daten)
 // ============================================
 const WeddingPage = () => {
   const { 
@@ -262,11 +277,7 @@ const WeddingPage = () => {
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    return date.toLocaleDateString('de-DE', { 
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric' 
-    });
+    return date.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
   };
 
   const navLinks = [];
@@ -326,7 +337,7 @@ const WeddingPage = () => {
 };
 
 // ============================================
-// STATUS ROUTER (zeigt Seite basierend auf Status)
+// STATUS ROUTER (zeigt Seite basierend auf Projekt-Status)
 // ============================================
 const StatusRouter = () => {
   const { status, isLoading, error, project } = useWedding();
@@ -346,7 +357,7 @@ const StatusRouter = () => {
 };
 
 // ============================================
-// SLUG WRAPPER - Lädt Projekt basierend auf URL-Slug
+// SLUG WRAPPER - Lädt Projekt basierend auf URL
 // ============================================
 const SlugWrapper = ({ children }) => {
   const { slug } = useParams();
@@ -366,38 +377,28 @@ function App() {
     <Router>
       <EditorialGlobalStyles />
       <Routes>
-        {/* Landing Page (ohne Slug) */}
-        <Route path="/" element={<LandingPage />} />
+        {/* Startseite ohne Slug → Demo mit Platzhaltern */}
+        <Route path="/" element={<DemoPage />} />
         
         {/* Slug-basierte Routen */}
         <Route path="/:slug" element={
-          <SlugWrapper>
-            <StatusRouter />
-          </SlugWrapper>
+          <SlugWrapper><StatusRouter /></SlugWrapper>
         } />
         
         <Route path="/:slug/admin" element={
-          <SlugWrapper>
-            <AdminDashboard />
-          </SlugWrapper>
+          <SlugWrapper><AdminDashboard /></SlugWrapper>
         } />
         
         <Route path="/:slug/std" element={
-          <SlugWrapper>
-            <SaveTheDate />
-          </SlugWrapper>
+          <SlugWrapper><SaveTheDate /></SlugWrapper>
         } />
         
         <Route path="/:slug/archiv" element={
-          <SlugWrapper>
-            <ArchivePage />
-          </SlugWrapper>
+          <SlugWrapper><ArchivePage /></SlugWrapper>
         } />
         
         <Route path="/:slug/preview" element={
-          <SlugWrapper>
-            <WeddingPage />
-          </SlugWrapper>
+          <SlugWrapper><WeddingPage /></SlugWrapper>
         } />
         
         {/* Fallback */}

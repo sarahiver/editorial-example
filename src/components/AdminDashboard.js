@@ -188,12 +188,13 @@ const AddImageButton = styled.button`
 `;
 
 // ============================================
-// CLOUDINARY IMAGE UPLOAD COMPONENT
+// CLOUDINARY IMAGE UPLOAD COMPONENT (with delete)
 // ============================================
 function CloudinaryImageUpload({ 
   label, 
   currentImage, 
-  onUpload, 
+  onUpload,
+  onDelete,
   folder,
   cloudName,
   uploadPreset,
@@ -218,6 +219,13 @@ function CloudinaryImageUpload({
 
   const isConfigured = cloudName && uploadPreset;
 
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    if (window.confirm('Bild wirklich entfernen?')) {
+      onUpload(null);
+    }
+  };
+
   return (
     <FormGroup $mb="1.5rem">
       <Label>{label}</Label>
@@ -228,9 +236,21 @@ function CloudinaryImageUpload({
         onClick={() => isConfigured && isReady && openWidget()}
       >
         {currentImage ? (
-          <ImageOverlay className="overlay">
-            📷 Bild ändern
-          </ImageOverlay>
+          <>
+            <ImageOverlay className="overlay">
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <span style={{ cursor: 'pointer', padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.9)', color: '#000', fontSize: '0.8rem' }}>
+                  📷 Ändern
+                </span>
+                <span 
+                  onClick={handleDelete}
+                  style={{ cursor: 'pointer', padding: '0.5rem 1rem', background: 'rgba(198,40,40,0.9)', color: '#FFF', fontSize: '0.8rem' }}
+                >
+                  🗑 Entfernen
+                </span>
+              </div>
+            </ImageOverlay>
+          </>
         ) : (
           <ImagePlaceholder>
             <span>📷</span>
