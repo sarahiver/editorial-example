@@ -183,6 +183,53 @@ const CountdownWrapper = styled.div`
   margin-top: 1rem;
 `;
 
+const float = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+`;
+
+const ScrollHint = styled.div`
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  animation: ${fadeInUp} 0.8s ease forwards;
+  animation-delay: 2s;
+  
+  span {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #999;
+    writing-mode: vertical-rl;
+  }
+`;
+
+const ScrollLine = styled.div`
+  width: 1px;
+  height: 40px;
+  background: rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 30%;
+    background: #000;
+    animation: ${float} 1.5s ease-in-out infinite;
+  }
+`;
+
 const GallerySection = styled.section`
   padding: 6rem 2rem;
   background: #FAFAFA;
@@ -303,6 +350,13 @@ function SaveTheDate() {
             </CountdownWrapper>
           )}
         </Content>
+        
+        {showGallery && (
+          <ScrollHint>
+            <span>Scroll</span>
+            <ScrollLine />
+          </ScrollHint>
+        )}
       </HeroSection>
       
       {showGallery && (

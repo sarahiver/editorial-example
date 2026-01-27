@@ -42,7 +42,7 @@ const Page = styled.div`
 
 // Hero Section
 const HeroSection = styled.section`
-  min-height: 80vh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -78,6 +78,53 @@ const BackgroundCircle = styled.div`
   pointer-events: none;
   animation: ${circleGrow} 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   animation-delay: 0.5s;
+`;
+
+const float = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+`;
+
+const ScrollHint = styled.div`
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  animation: ${fadeInUp} 0.8s ease forwards;
+  animation-delay: 1.5s;
+  
+  span {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #999;
+    writing-mode: vertical-rl;
+  }
+`;
+
+const ScrollLine = styled.div`
+  width: 1px;
+  height: 40px;
+  background: rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 30%;
+    background: #000;
+    animation: ${float} 1.5s ease-in-out infinite;
+  }
 `;
 
 const HeroContent = styled.div`
@@ -387,6 +434,11 @@ function ArchivePage() {
           <Divider />
           <DateLocation>{displayDate} · {location}</DateLocation>
         </HeroContent>
+        
+        <ScrollHint>
+          <span>Scroll</span>
+          <ScrollLine />
+        </ScrollHint>
       </HeroSection>
 
       {/* Photo Gallery */}
