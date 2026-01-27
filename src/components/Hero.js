@@ -58,7 +58,7 @@ const BackgroundGrid = styled.div`
   position: absolute;
   inset: 0;
   background-image: 
-    linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+    linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
   background-size: 80px 80px;
   pointer-events: none;
