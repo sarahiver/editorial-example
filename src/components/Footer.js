@@ -254,7 +254,7 @@ const ErrorMessage = styled.p`
   margin-top: 1rem;
 `;
 
-function Footer({ coupleNames = 'Sarah & Iver', content = {}, showBadge = false }) {
+function Footer({ coupleNames = 'Pauli & Mo', content = {}, showBadge = false }) {
   const hashtag = content.hashtag || '';
   const tagline = content.tagline || 'Wir freuen uns auf euch!';
   

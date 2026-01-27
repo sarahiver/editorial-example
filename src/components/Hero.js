@@ -21,6 +21,28 @@ const float = keyframes`
   50% { transform: translateY(-10px); }
 `;
 
+const gridReveal = keyframes`
+  from { 
+    opacity: 0;
+    background-size: 0px 0px;
+  }
+  to { 
+    opacity: 1;
+    background-size: 80px 80px;
+  }
+`;
+
+const circleGrow = keyframes`
+  from { 
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  to { 
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+`;
+
 const Section = styled.section`
   min-height: 100vh;
   display: flex;
@@ -62,13 +84,16 @@ const BackgroundGrid = styled.div`
     linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px);
   background-size: 80px 80px;
   pointer-events: none;
+  opacity: 0;
+  animation: ${gridReveal} 2s ease forwards;
+  animation-delay: 0.2s;
 `;
 
 const BackgroundCircle = styled.div`
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(0);
   width: 60vw;
   height: 60vw;
   max-width: 800px;
@@ -76,6 +101,8 @@ const BackgroundCircle = styled.div`
   border: 1px solid rgba(0,0,0,0.08);
   border-radius: 50%;
   pointer-events: none;
+  animation: ${circleGrow} 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.5s;
 `;
 
 const Content = styled.div`
