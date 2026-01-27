@@ -254,20 +254,22 @@ function RSVP({
     name: '',
     email: '',
     allergies: '',
-    songWish: '',
     message: '',
+    custom: '',
   });
-  const [guestMenus, setGuestMenus] = useState(['']); // Array of menu choices per guest
+  const [guestMenus, setGuestMenus] = useState(['']);
   const sectionRef = useRef(null);
 
-  // Get settings from content
+  // Get settings from content - using new admin field names
   const title = content.title || 'Seid ihr dabei?';
-  const subtitle = content.description || 'Bitte lasst uns wissen, ob ihr kommen könnt.';
-  const askDietary = content.ask_dietary !== false;
-  const askAllergies = content.ask_allergies !== false;
-  const askSongWish = content.ask_song_wish || false;
-  const maxPersons = content.persons || 5;
-  const menuOptions = ['Fleisch', 'Fisch', 'Vegetarisch', 'Vegan'];
+  const subtitle = content.subtitle || 'Bitte lasst uns wissen, ob ihr kommen könnt.';
+  const showMenu = content.show_menu !== false;
+  const showAllergies = content.show_allergies !== false;
+  const showMessage = content.show_message !== false;
+  const showCustom = content.show_custom || false;
+  const customLabel = content.custom_label || 'Sonstiges';
+  const maxPersons = content.max_persons || 5;
+  const menuOptions = content.menu_options || ['Fleisch', 'Fisch', 'Vegetarisch', 'Vegan'];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -317,8 +319,8 @@ function RSVP({
         attending: attending === 'yes',
         dietary: menuChoices,
         allergies: formData.allergies,
-        songWish: formData.songWish,
         message: formData.message,
+        custom_field: formData.custom,
       };
 
       const { error: submitError } = await submitRSVP(projectId, rsvpData);
@@ -406,7 +408,7 @@ function RSVP({
                 </Select>
               </FormGroup>
               
-              {guestMenus.map((menu, index) => (
+              {showMenu && guestMenus.map((menu, index) => (
                 <FormGroup key={index}>
                   <Label>Menüwahl {guestCount > 1 ? `Person ${index + 1}` : ''}</Label>
                   <Select value={menu} onChange={(e) => handleMenuChange(index, e.target.value)}>
@@ -416,17 +418,28 @@ function RSVP({
                 </FormGroup>
               ))}
               
-              <FormGroup>
-                <Label>Allergien / Unverträglichkeiten</Label>
-                <Input type="text" name="allergies" value={formData.allergies} onChange={handleChange} placeholder="z.B. Nüsse, Laktose..." />
-              </FormGroup>
+              {showAllergies && (
+                <FormGroup>
+                  <Label>Allergien / Unverträglichkeiten</Label>
+                  <Input type="text" name="allergies" value={formData.allergies} onChange={handleChange} placeholder="z.B. Nüsse, Laktose..." />
+                </FormGroup>
+              )}
             </>
           )}
           
-          <FormGroup>
-            <Label>Nachricht (optional)</Label>
-            <TextArea name="message" value={formData.message} onChange={handleChange} placeholder="Möchtest du uns noch etwas mitteilen?" />
-          </FormGroup>
+          {showMessage && (
+            <FormGroup>
+              <Label>Nachricht (optional)</Label>
+              <TextArea name="message" value={formData.message} onChange={handleChange} placeholder="Möchtest du uns noch etwas mitteilen?" />
+            </FormGroup>
+          )}
+          
+          {showCustom && (
+            <FormGroup>
+              <Label>{customLabel}</Label>
+              <TextArea name="custom" value={formData.custom} onChange={handleChange} />
+            </FormGroup>
+          )}
           
           {error && (
             <div style={{ color: '#C62828', fontSize: '0.9rem', marginBottom: '1rem', textAlign: 'center' }}>

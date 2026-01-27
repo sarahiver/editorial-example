@@ -249,22 +249,29 @@ const SubmitButton = styled.button`
 function Gifts({ content = {} }) {
   const { projectId } = useWedding();
   const title = content.title || 'Geschenke';
+  const subtitle = content.subtitle || '';
   const description = content.description || 'Das größte Geschenk ist eure Anwesenheit.';
+  const paymentInfo = content.payment_info || '';
   const giftItems = content.items || [];
   
   const [visible, setVisible] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedGift, setSelectedGift] = useState(null);
   const [reserverName, setReserverName] = useState('');
-  const [reservedGifts, setReservedGifts] = useState({}); // Track locally reserved gifts
+  const [reservedGifts, setReservedGifts] = useState({});
   const sectionRef = useRef(null);
 
-  const defaultGifts = [
-    { id: '1', title: 'Küchenmaschine', description: 'Für gemeinsame Backabenteuer.', cost: '599€', image: null, reserved: false },
-    { id: '2', title: 'Staubsauger', description: 'Für ein sauberes Zuhause.', cost: '649€', image: null, reserved: false },
-  ];
-
-  const items = giftItems.length > 0 ? giftItems : defaultGifts;
+  // Map items to consistent format (support both old and new field names)
+  const items = giftItems.map((gift, i) => ({
+    id: gift.id || `gift-${i}`,
+    title: gift.name || gift.title || 'Geschenk',
+    description: gift.description || '',
+    cost: gift.price || gift.cost || '',
+    image: gift.image || null,
+    url: gift.url || null,
+    reserved: gift.reserved || false,
+    reserved_by: gift.reserved_by || null,
+  }));
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -283,20 +290,17 @@ function Gifts({ content = {} }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Mark gift as reserved locally (name is optional)
     setReservedGifts(prev => ({
       ...prev,
       [selectedGift.id]: reserverName || 'Anonym'
     }));
     
-    // TODO: Implement gift reservation via Supabase
     console.log('Reserving gift:', selectedGift, 'by:', reserverName || 'Anonym');
     
     setModalOpen(false);
     setReserverName('');
   };
   
-  // Check if gift is reserved (from content or locally)
   const isGiftReserved = (gift) => {
     return gift.reserved || reservedGifts[gift.id];
   };
@@ -305,43 +309,86 @@ function Gifts({ content = {} }) {
     return reservedGifts[gift.id] || gift.reserved_by || 'Jemand';
   };
 
+  // Show placeholder if no items
+  if (items.length === 0 && !paymentInfo) {
+    return null;
+  }
+
   return (
     <Section ref={sectionRef} id="gifts">
       <Container>
         <Header>
           <Eyebrow $visible={visible}>Wunschliste</Eyebrow>
           <Title $visible={visible}>{title}</Title>
+          {subtitle && <Intro $visible={visible}>{subtitle}</Intro>}
           <Intro $visible={visible}>{description}</Intro>
         </Header>
         
-        <Grid>
-          {items.map((gift, i) => {
-            const reserved = isGiftReserved(gift);
-            return (
-              <GiftCard key={gift.id || i} $index={i} $visible={visible} $reserved={reserved}>
-                <GiftImage $image={gift.image} $reserved={reserved} />
-                <GiftContent>
-                  <GiftName $reserved={reserved}>{gift.title}</GiftName>
-                  <GiftDescription>{gift.description}</GiftDescription>
-                  <GiftPrice $reserved={reserved}>{gift.cost}</GiftPrice>
-                  <ReserveButton 
-                    $reserved={reserved} 
-                    onClick={() => !reserved && handleReserve(gift)}
-                    disabled={reserved}
-                  >
-                    {reserved ? `Reserviert von ${getReservedBy(gift)}` : 'Reservieren'}
-                  </ReserveButton>
-                </GiftContent>
-              </GiftCard>
-            );
-          })}
-        </Grid>
+        {items.length > 0 && (
+          <Grid>
+            {items.map((gift, i) => {
+              const reserved = isGiftReserved(gift);
+              return (
+                <GiftCard key={gift.id} $index={i} $visible={visible} $reserved={reserved}>
+                  {gift.image && <GiftImage $image={gift.image} $reserved={reserved} />}
+                  <GiftContent>
+                    <GiftName $reserved={reserved}>{gift.title}</GiftName>
+                    {gift.description && <GiftDescription>{gift.description}</GiftDescription>}
+                    {gift.cost && <GiftPrice $reserved={reserved}>{gift.cost}</GiftPrice>}
+                    {gift.url && !reserved && (
+                      <a href={gift.url} target="_blank" rel="noopener noreferrer" style={{ display: 'block', marginBottom: '1rem', fontSize: '0.8rem', color: '#666' }}>
+                        → Zum Shop
+                      </a>
+                    )}
+                    <ReserveButton 
+                      $reserved={reserved} 
+                      onClick={() => !reserved && handleReserve(gift)}
+                      disabled={reserved}
+                    >
+                      {reserved ? `Reserviert` : 'Reservieren'}
+                    </ReserveButton>
+                  </GiftContent>
+                </GiftCard>
+              );
+            })}
+          </Grid>
+        )}
+        
+        {paymentInfo && (
+          <div style={{ 
+            marginTop: '3rem', 
+            padding: '2rem', 
+            background: '#FFF', 
+            border: '1px solid #E0E0E0',
+            textAlign: 'center'
+          }}>
+            <div style={{ 
+              fontFamily: 'Inter, sans-serif', 
+              fontSize: '0.7rem', 
+              fontWeight: 500, 
+              letterSpacing: '0.15em', 
+              textTransform: 'uppercase', 
+              color: '#666',
+              marginBottom: '1rem'
+            }}>
+              Bankverbindung
+            </div>
+            <div style={{ 
+              fontFamily: 'JetBrains Mono, monospace', 
+              fontSize: '0.9rem', 
+              color: '#000',
+              whiteSpace: 'pre-line'
+            }}>
+              {paymentInfo}
+            </div>
+          </div>
+        )}
         
         <Modal $open={modalOpen} onClick={() => setModalOpen(false)}>
           <ModalContent onClick={e => e.stopPropagation()}>
             <ModalClose onClick={() => setModalOpen(false)}>×</ModalClose>
             <ModalTitle>Geschenk reservieren</ModalTitle>
-            <ModalSubtitle>{selectedGift?.title} – {selectedGift?.cost}</ModalSubtitle>
+            <ModalSubtitle>{selectedGift?.title}{selectedGift?.cost ? ` – ${selectedGift.cost}` : ''}</ModalSubtitle>
             
             <form onSubmit={handleSubmit}>
               <FormGroup>

@@ -69,7 +69,7 @@ const Grid = styled.div`
 
 const Card = styled.div`
   text-align: center;
-  padding: 3rem 2rem;
+  padding: 2rem;
   border: 1px solid #333;
   opacity: ${p => p.$visible ? 1 : 0};
   transform: translateY(${p => p.$visible ? 0 : '30px'});
@@ -77,9 +77,17 @@ const Card = styled.div`
   transition-delay: ${p => 0.3 + p.$index * 0.15}s;
 `;
 
+const CardImage = styled.div`
+  width: 100%;
+  aspect-ratio: 3/4;
+  background: ${p => p.$src ? `url(${p.$src}) center/cover` : '#1a1a1a'};
+  margin-bottom: 1.5rem;
+`;
+
 const CardIcon = styled.div`
   font-size: 4rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  ${p => p.$hasImage && 'display: none;'}
 `;
 
 const CardTitle = styled.h3`
@@ -87,7 +95,7 @@ const CardTitle = styled.h3`
   font-size: 1.5rem;
   font-weight: 400;
   color: #FFF;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 `;
 
 const CardList = styled.ul`
@@ -170,15 +178,14 @@ const NoteText = styled.p`
 
 function Dresscode({ content = {} }) {
   const title = content.title || 'Dresscode';
-  const code = content.code || 'Elegant';
+  const subtitle = content.subtitle || 'Elegant';
   const description = content.description || 'Wir freuen uns auf elegante Abendgarderobe.';
-  const colors = content.colors || [
-    { color: '#000000', name: 'Schwarz' },
-    { color: '#1A1A1A', name: 'Anthrazit' },
-    { color: '#FFFFFF', name: 'Weiß', border: true },
-  ];
-  const dos = content.dos || ['Anzug', 'Abendkleid'];
-  const donts = content.donts || ['Jeans', 'Turnschuhe'];
+  const imageMale = content.image_male || null;
+  const imageFemale = content.image_female || null;
+  
+  // Support both old format (array of objects) and new format (array of hex strings)
+  const rawColors = content.colors || [];
+  const colors = rawColors.map(c => typeof c === 'string' ? { color: c, name: '' } : c);
 
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -198,45 +205,52 @@ function Dresscode({ content = {} }) {
         <Header>
           <Eyebrow $visible={visible}>Was ihr anzieht</Eyebrow>
           <Title $visible={visible}>{title}</Title>
-          <Subtitle $visible={visible}>{description}</Subtitle>
+          {subtitle && <Subtitle $visible={visible}>{subtitle}</Subtitle>}
         </Header>
+        
+        {description && (
+          <Note $visible={visible} style={{ marginTop: 0, marginBottom: '3rem' }}>
+            <NoteText>{description}</NoteText>
+          </Note>
+        )}
         
         <Grid>
           <Card $index={0} $visible={visible}>
-            <CardIcon>👔</CardIcon>
+            {imageMale ? (
+              <CardImage $src={imageMale} />
+            ) : (
+              <CardIcon>👔</CardIcon>
+            )}
             <CardTitle>Für die Herren</CardTitle>
             <CardList>
               <CardItem>Dunkler Anzug</CardItem>
               <CardItem>Hemd mit Krawatte oder Fliege</CardItem>
               <CardItem>Elegante Lederschuhe</CardItem>
-              <CardItem>Optional: Einstecktuch</CardItem>
             </CardList>
           </Card>
           
           <Card $index={1} $visible={visible}>
-            <CardIcon>👗</CardIcon>
+            {imageFemale ? (
+              <CardImage $src={imageFemale} />
+            ) : (
+              <CardIcon>👗</CardIcon>
+            )}
             <CardTitle>Für die Damen</CardTitle>
             <CardList>
               <CardItem>Cocktail- oder Abendkleid</CardItem>
               <CardItem>Eleganter Jumpsuit</CardItem>
-              <CardItem>Absatzschuhe oder elegante Flats</CardItem>
               <CardItem>Bitte kein Weiß oder Creme</CardItem>
             </CardList>
           </Card>
         </Grid>
         
-        <ColorPalette $visible={visible}>
-          {colors.map((c, i) => (
-            <ColorSwatch key={i} $color={c.color} $name={c.name} $border={c.border} />
-          ))}
-        </ColorPalette>
-        
-        <Note $visible={visible}>
-          <NoteText>
-            <strong>Hinweis:</strong> Bitte verzichtet auf Weiß und Cremetöne – das ist der Braut vorbehalten. 
-            Die Feier findet teils im Freien statt, denkt an einen leichten Überwurf für den Abend.
-          </NoteText>
-        </Note>
+        {colors.length > 0 && (
+          <ColorPalette $visible={visible}>
+            {colors.map((c, i) => (
+              <ColorSwatch key={i} $color={c.color} $name={c.name || ''} $border={c.color?.toLowerCase() === '#ffffff'} />
+            ))}
+          </ColorPalette>
+        )}
       </Container>
     </Section>
   );

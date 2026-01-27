@@ -31,6 +31,24 @@ import SaveTheDate from './components/SaveTheDate';
 import ArchivePage from './components/ArchivePage';
 
 // ============================================
+// CUSTOM DOMAIN DETECTION
+// ============================================
+function isCustomDomain() {
+  const hostname = window.location.hostname;
+  // Not a custom domain if:
+  // - localhost
+  // - vercel.app preview
+  // - your main domain (siweddings.de or editorial-example.vercel.app)
+  const mainDomains = ['localhost', 'vercel.app', 'siweddings.de', 'editorial-example'];
+  return !mainDomains.some(d => hostname.includes(d));
+}
+
+function getCustomDomainIdentifier() {
+  // Returns the full hostname for custom domains (e.g., "pauliundmo.de")
+  return window.location.hostname;
+}
+
+// ============================================
 // LOADING & ERROR SCREENS
 // ============================================
 const LoadingScreen = () => (
@@ -226,7 +244,7 @@ const StatusRouter = () => {
 };
 
 // ============================================
-// SLUG WRAPPER
+// SLUG WRAPPER (für URL-basierte Routen)
 // ============================================
 const SlugWrapper = ({ children }) => {
   const { slug } = useParams();
@@ -234,9 +252,40 @@ const SlugWrapper = ({ children }) => {
 };
 
 // ============================================
+// CUSTOM DOMAIN WRAPPER (für Custom Domain Routen)
+// ============================================
+const CustomDomainWrapper = ({ children }) => {
+  const domain = getCustomDomainIdentifier();
+  return <WeddingProvider slug={domain}>{children}</WeddingProvider>;
+};
+
+// ============================================
 // MAIN APP
 // ============================================
 function App() {
+  // Check if we're on a custom domain
+  const customDomain = isCustomDomain();
+
+  // Custom Domain Routing (pauliundmo.de, pauliundmo.de/admin, etc.)
+  if (customDomain) {
+    return (
+      <Router>
+        <EditorialGlobalStyles />
+        <CustomDomainWrapper>
+          <Routes>
+            <Route path="/" element={<StatusRouter />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/std" element={<SaveTheDate />} />
+            <Route path="/archiv" element={<ArchivePage />} />
+            <Route path="/preview" element={<WeddingPage />} />
+            <Route path="*" element={<ErrorScreen message="Seite nicht gefunden" />} />
+          </Routes>
+        </CustomDomainWrapper>
+      </Router>
+    );
+  }
+
+  // Standard Routing (siweddings.de, siweddings.de/pauli-mo, etc.)
   return (
     <Router>
       <EditorialGlobalStyles />

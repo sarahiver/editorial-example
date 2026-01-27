@@ -194,10 +194,17 @@ const NavigateButton = styled.a`
 
 function Directions({ content = {} }) {
   const title = content.title || 'Anfahrt';
-  const address = content.address || 'Adresse folgt';
+  const intro = content.intro || '';
+  const address = content.address || '';
   const mapsEmbed = content.maps_embed || '';
-  const parkingInfo = content.parking_info || '';
-  const publicTransport = content.public_transport || '';
+  const parking = content.parking || '';
+  
+  // Use options array from admin, or fallback to defaults
+  const options = content.options?.length > 0 ? content.options : [
+    { icon: '🚗', title: 'Mit dem Auto', description: 'Parkplätze sind vorhanden.' },
+    { icon: '🚃', title: 'Öffentlich', description: 'Infos folgen.' },
+    { icon: '✈️', title: 'Flugzeug', description: 'Nächster Flughafen: Hamburg' },
+  ];
   
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef(null);
@@ -211,26 +218,8 @@ function Directions({ content = {} }) {
     return () => observer.disconnect();
   }, []);
 
-  const directions = [
-    {
-      icon: '🚗',
-      title: 'Mit dem Auto',
-      text: parkingInfo || 'Parkplätze sind vorhanden.',
-      details: [],
-    },
-    {
-      icon: '🚆',
-      title: 'Öffentliche Verkehrsmittel',
-      text: publicTransport || 'Infos folgen.',
-      details: [],
-    },
-    {
-      icon: '🚕',
-      title: 'Mit dem Taxi',
-      text: 'Vom Hauptbahnhof direkt zur Location. Wir empfehlen Taxi Heidelberg.',
-      details: ['Tel: +49 6221 302030', 'Fahrzeit: ca. 10 Min.'],
-    },
-  ];
+  // Filter out empty options
+  const activeOptions = options.filter(opt => opt.title || opt.description);
 
   return (
     <Section ref={sectionRef} id="directions">
@@ -238,42 +227,44 @@ function Directions({ content = {} }) {
         <Header>
           <Eyebrow $visible={visible}>Der Weg zu uns</Eyebrow>
           <Title $visible={visible}>{title}</Title>
+          {intro && <Subtitle $visible={visible}>{intro}</Subtitle>}
         </Header>
         
-        <MapContainer $visible={visible}>
-          {mapsEmbed ? (
+        {mapsEmbed && (
+          <MapContainer $visible={visible}>
             <iframe 
               src={mapsEmbed}
               title="Anfahrtskarte"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />
-          ) : (
-            <MapPlaceholder>
-              <span>Karte wird hier angezeigt</span>
-            </MapPlaceholder>
-          )}
-        </MapContainer>
+          </MapContainer>
+        )}
         
         <Grid>
-          {directions.map((item, i) => (
+          {activeOptions.map((item, i) => (
             <Card key={i} $index={i} $visible={visible}>
-              <CardIcon>{item.icon}</CardIcon>
+              {item.icon && <CardIcon>{item.icon}</CardIcon>}
               <CardTitle>{item.title}</CardTitle>
-              <CardText>{item.text}</CardText>
-              {item.details.map((detail, j) => (
-                <CardDetail key={j}>{detail}</CardDetail>
-              ))}
+              <CardText>{item.description}</CardText>
             </Card>
           ))}
         </Grid>
         
-        <AddressCard $visible={visible}>
-          <AddressLabel>Adresse der Location</AddressLabel>
-          <AddressText>
-            {address}
-          </AddressText>
-        </AddressCard>
+        {parking && (
+          <Card $index={activeOptions.length} $visible={visible} style={{ marginTop: '2rem' }}>
+            <CardIcon>🅿️</CardIcon>
+            <CardTitle>Parken</CardTitle>
+            <CardText>{parking}</CardText>
+          </Card>
+        )}
+        
+        {address && (
+          <AddressCard $visible={visible}>
+            <AddressLabel>Adresse der Location</AddressLabel>
+            <AddressText>{address}</AddressText>
+          </AddressCard>
+        )}
       </Container>
     </Section>
   );
